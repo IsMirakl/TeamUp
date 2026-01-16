@@ -17,6 +17,7 @@ model User {
   id           String  @id @default(cuid())
   email        String  @unique
   emailVerifed Boolean @default(false)
+  role         Role    @default(USER)
 
   name   String
   avatar String?
@@ -43,4 +44,9 @@ enum SubscriptionPlan {
   FREE
   PRO
   ENTERPRISE
+}
+
+enum Role {
+  USER
+  ADMIN
 }
