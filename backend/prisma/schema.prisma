@@ -31,13 +31,16 @@ model User {
 }
 
 model Account {
-  id            String  @id @default(cuid())
-  userId        String
+  id     String @id @default(cuid())
+  userId String
+
   type          String // google / github / google
   Provider      String // credentials / google / github
   passwordHash  String
   refresh_token String?
   access_token  String?
+
+  @@unique([Provider, userId])
 }
 
 enum SubscriptionPlan {
