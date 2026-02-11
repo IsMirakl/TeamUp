@@ -8,7 +8,7 @@ interface InputFieldProps {
   required?: boolean;
 }
 
-const InputFIeld: React.FC<InputFieldProps> = ({
+const InputField: React.FC<InputFieldProps> = ({
   id,
   label,
   type = 'text',
@@ -36,4 +36,4 @@ const InputFIeld: React.FC<InputFieldProps> = ({
   </div>
 );
 
-export default InputFIeld;
+export default InputField;
