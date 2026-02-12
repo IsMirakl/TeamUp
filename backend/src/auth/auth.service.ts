@@ -48,6 +48,7 @@ export class AuthService {
       where: {
         type: 'credentials',
         Provider: 'credentials',
+        user: {email: dto.email},
       },
       include: { user: true }
     });
