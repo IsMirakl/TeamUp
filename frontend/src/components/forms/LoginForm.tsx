@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import ButtonSubmit from '../ui/ButtonSubmit';
 import InputField from '../ui/InputField';
 
@@ -7,15 +8,31 @@ interface LoginFormProps {
   onSubmit?: (data: { email: string; password: string }) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const LoginForm: React.FC<LoginFormProps> = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (onSubmit) {
-      onSubmit({ email, password });
+    try {
+      let success = false;
+      success = await login(formData);
+
+      if (success) {
+        navigate('/home');
+      }
+    } catch (error) {
+      console.error('Ошибка входа: ', error);
     }
   };
 
@@ -29,16 +46,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         label="Email"
         placeholder="Электронная почта"
         type="email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
+        value={formData.email}
+        onChange={e => handleInputChange('email', e.target.value)}
       />
       <InputField
         id="password"
         label="Пароль"
         placeholder="Введите пароль"
         type="password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
+        value={formData.password}
+        onChange={e => handleInputChange('password', e.target.value)}
       />
 
       <div className="mt-5 ml-5 flex items-center gap-2">

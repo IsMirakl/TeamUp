@@ -10,9 +10,8 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = () => {
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
-  // const [confirmPassword, setConfirmPassword] = useState('');
+  const navigate = useNavigate();
+  const { register } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -20,10 +19,6 @@ const RegisterForm: React.FC<RegisterFormProps> = () => {
     password: '',
     confirmPassword: '',
   });
-
-  const navigate = useNavigate();
-
-  const { register } = useAuth();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -45,7 +40,7 @@ const RegisterForm: React.FC<RegisterFormProps> = () => {
         navigate('/home');
       }
     } catch (error) {
-      console.error('Ошибка авторизации:', error);
+      console.error('Ошибка регистрации:', error);
     }
   };
 
