@@ -1,10 +1,13 @@
 package auth
 
 import (
+	"backend/config"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 )
 
 type Claims struct {
@@ -12,8 +15,16 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+func init(){
+	if err := godotenv.Load(); err != nil{
+		log.Print("No .env file found")
+	}
+}
+
 func CreateToken(userID uint64) (string, error){
-	signingKey := []byte("JWT_SECRET_KEY")
+	conf := config.New()
+
+	signingKey := []byte(conf.SECRET_KEY.JWT_SECRET)
 
 	claims := Claims{
 		UserID: userID,
