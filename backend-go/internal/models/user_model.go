@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -21,8 +22,8 @@ type User struct {
 	Name string `gorm:"size:25;not null;"`
 	Avatar *string
 
-	Role Role	`gorm:"type:varchar(20);default:'user'; check:role IN ('user', 'admin', 'team_lead')"`
-	SubscriptionPlan SubscriptionPlan `gorm:"type:varchar(20);default:'Free'; check:subscription_plan IN ('Free', 'Pro', 'Enterprise')"`
+	Role Role	`gorm:"type:varchar(20);default:'user';check:role IN ('user', 'admin', 'team_lead')"`
+	SubscriptionPlan SubscriptionPlan `gorm:"type:varchar(20);default:'Free';check:subscription_plan IN ('Free', 'Pro', 'Enterprise')"`
 }
 
 type Account struct {
@@ -30,6 +31,10 @@ type Account struct {
 
 	UserID uint `gorm:"index"`
 	User User
+
+	passwordHash  string `gorm:"size255"`
+  	refresh_token *string
+  	access_token  *string
 
 	Provider string	
 }
@@ -48,3 +53,13 @@ const (
 	ProPlan SubscriptionPlan = "Pro"
 	EnterprisePlan SubscriptionPlan = "Enterprise"
 )
+
+
+func HashPassword(password string) ([]byte, error){
+	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+}
+
+
+func VerifyPassword(hashedPassword, password string) (error){
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
