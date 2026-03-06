@@ -16,12 +16,22 @@ type User struct {
 	Email string `gorm:"unique;not null"`
 	EmailVerified bool
 
+	Account *Account `gorm:"foreignKey:UserID"`
 
 	Name string `gorm:"size:25;not null;"`
 	Avatar *string
 
 	Role Role	`gorm:"type:varchar(20);default:'user'; check:role IN ('user', 'admin', 'team_lead')"`
 	SubscriptionPlan SubscriptionPlan `gorm:"type:varchar(20);default:'Free'; check:subscription_plan IN ('Free', 'Pro', 'Enterprise')"`
+}
+
+type Account struct {
+	ID string `gorm:"primaryKey"`
+
+	UserID uint `gorm:"index"`
+	User User
+
+	Provider string	
 }
 
 type Role string
