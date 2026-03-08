@@ -33,7 +33,7 @@ func SetupDB() *gorm.DB {
 		log.Printf("failed to connect to the database")
 	}
 
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.User{},&models.Account{})
 
 	return db
 }
