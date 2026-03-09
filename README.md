@@ -23,10 +23,10 @@ TeamUp - platform for finding partners and teams for startups and pet projects. 
 - Axios
 
 ### Backend
-- NestJS 11
-- TypeScript 5.9
+- Golang 1.26
 - PostgreSQL 18
-- Prisma ORM 7.2
+- Gin 1.12
+- Gorm 2.0
 
 ### Infrastructure
 - Docker 29.1
@@ -47,10 +47,9 @@ docker-compose up -d
 ```
 ### 3 Start Backend
 ```bash
-cd backend
-npm install
-npx prisma migrate dev
-npm run start:dev
+cd backend-go
+go mod tidy
+go run cmd/server.go
 ```
 ### Start Frontend
 ```bash
