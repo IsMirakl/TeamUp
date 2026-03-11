@@ -27,12 +27,10 @@ type User struct {
 }
 
 type Account struct {
-	ID string `gorm:"primaryKey"`
+	UserID uint `gorm:"primaryKey"`
+	User User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-	UserID uint `gorm:"index"`
-	User User
-
-	PasswordHash  string `gorm:"size255"`
+	PasswordHash  string `gorm:"size:255"`
   	Refresh_token *string
   	Access_token  *string
 
