@@ -9,6 +9,7 @@ import (
 
 type UserRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, user *models.User) error
+	CreateAccount(ctx context.Context, tx *gorm.DB, account *models.Account) error
 	GetUserById(ctx context.Context, UserID uint, tx *gorm.DB,) (*models.User, error)
 	GetUserByEmail(ctx context.Context, Email string, tx *gorm.DB)(*models.User, error)
 }
@@ -31,6 +32,14 @@ func (r *userRepository) Create(ctx context.Context, tx *gorm.DB, user *models.U
 	return tx.WithContext(ctx).Create(user).Error
 }
 
+func (r *userRepository) CreateAccount(ctx context.Context, tx *gorm.DB, account *models.Account) (error) {
+	
+	if tx  == nil {
+		tx = r.db
+	}
+
+	return tx.WithContext(ctx).Create(account).Error
+}
 
 func (r *userRepository) GetUserById(ctx context.Context, UserID uint, tx *gorm.DB) (*models.User, error) {
 
