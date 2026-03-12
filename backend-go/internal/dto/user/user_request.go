@@ -8,6 +8,6 @@ type CreateUserDTO struct {
 }
 
 type LoginUserDTO struct {
-	UserID string `json:"user_id" validate:"required"`
+	Email string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
