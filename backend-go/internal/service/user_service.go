@@ -1,10 +1,12 @@
 package service
 
 import (
+	"backend/internal/auth"
 	"backend/internal/dto/user"
 	"backend/internal/models"
 	"backend/internal/repository"
 	"context"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -68,4 +70,40 @@ func (s *UserService) Create(ctx context.Context, dto *user.CreateUserDTO) (*mod
 
 func (s *UserService) GetUserById(ctx context.Context, UserID uint) (*models.User, error) {
 	return s.repository.GetUserById(ctx, UserID, nil)
+}
+
+// func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+// 	return s.repository.GetUserByEmail(ctx, email, nil)
+// }
+
+func (s *UserService) Login(ctx context.Context, dto *user.LoginUserDTO) (string, error) {
+	
+	tx := s.db.Begin()
+
+	user, err := s.repository.GetUserByEmail(ctx, dto.Email, tx)
+
+	if err != nil {
+		tx.Rollback()
+		return "", err
+	}
+
+	ok := models.VerifyPassword(user.Account.PasswordHash, dto.Password)
+	if ok != nil{
+		tx.Rollback()
+		return "", errors.New("")
+	}
+
+	token, err := auth.CreateToken(uint64(user.UserID))
+	if err != nil {
+		tx.Rollback()
+		return "", err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return "", err
+	}
+		
+
+	return token, nil
+
 }

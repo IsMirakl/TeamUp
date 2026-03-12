@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend/config"
 	userDTO "backend/internal/dto/user"
 	"backend/internal/service"
 	"net/http"
@@ -40,4 +41,25 @@ func (h *UserHandler) Create(c *gin.Context) {
 
 	response := userDTO.ToUserResponse(user)
 	c.JSON(http.StatusCreated, response)
+}
+
+func (h *UserHandler) Login(c *gin.Context, cfg *config.Config) {
+
+	var dto userDTO.LoginUserDTO
+
+	if err := c.BindJSON(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	token, err := h.service.Login(c.Request.Context(), &dto)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": token,
+	})
+
 }

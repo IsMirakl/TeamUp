@@ -58,14 +58,14 @@ func (r *userRepository) GetUserById(ctx context.Context, UserID uint, tx *gorm.
 	return &user, nil
 }
 
-func (r *userRepository) GetUserByEmail(ctx context.Context, Email string, tx *gorm.DB) (*models.User, error) {
+func (r *userRepository) GetUserByEmail(ctx context.Context, email string, tx *gorm.DB) (*models.User, error) {
 	
 	if tx == nil {
 		tx = r.db
 	}
 
 	var user models.User
-	err := tx.WithContext(ctx).Where("Email =?", Email).Take(&user).Error
+	err := tx.WithContext(ctx).Where("email = ?", email).Take(&user).Error
 
 	if err != nil {
 		return nil, err
