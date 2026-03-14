@@ -10,8 +10,8 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, user *models.User) error
 	CreateAccount(ctx context.Context, tx *gorm.DB, account *models.Account) error
-	GetUserById(ctx context.Context, UserID uint, tx *gorm.DB,) (*models.User, error)
-	GetUserByEmail(ctx context.Context, Email string, tx *gorm.DB)(*models.User, error)
+	GetUserById(ctx context.Context, UserID uint) (*models.User, error)
+	GetUserByEmail(ctx context.Context, Email string)(*models.User, error)
 }
 
 type userRepository struct {
@@ -41,14 +41,11 @@ func (r *userRepository) CreateAccount(ctx context.Context, tx *gorm.DB, account
 	return tx.WithContext(ctx).Create(account).Error
 }
 
-func (r *userRepository) GetUserById(ctx context.Context, UserID uint, tx *gorm.DB) (*models.User, error) {
+func (r *userRepository) GetUserById(ctx context.Context, UserID uint) (*models.User, error) {
 
-	if tx == nil {
-		tx = r.db
-	}
 
 	var user models.User
-	err := tx.WithContext(ctx).First(&user, UserID).Error
+	err := r.db.WithContext(ctx).First(&user, UserID).Error
 
 
 	if err != nil {
@@ -58,14 +55,10 @@ func (r *userRepository) GetUserById(ctx context.Context, UserID uint, tx *gorm.
 	return &user, nil
 }
 
-func (r *userRepository) GetUserByEmail(ctx context.Context, email string, tx *gorm.DB) (*models.User, error) {
+func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	
-	if tx == nil {
-		tx = r.db
-	}
-
 	var user models.User
-	err := tx.WithContext(ctx).Where("email = ?", email).Take(&user).Error
+	err := r.db.WithContext(ctx).Preload("Account").Where("email = ?", email).Take(&user).Error
 
 	if err != nil {
 		return nil, err

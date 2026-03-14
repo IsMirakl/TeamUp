@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"backend/config"
 	userDTO "backend/internal/dto/user"
 	"backend/internal/service"
 	"net/http"
@@ -43,7 +42,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
-func (h *UserHandler) Login(c *gin.Context, cfg *config.Config) {
+func (h *UserHandler) Login(c *gin.Context) {
 
 	var dto userDTO.LoginUserDTO
 

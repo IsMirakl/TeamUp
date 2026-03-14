@@ -15,5 +15,6 @@ func SetupRouter(r *gin.Engine, h *Routes) {
 	
 	api := r.Group("/api")
 
-	CreateUser(api, h.UserHandler, h.signingKey)
+	CreateUser(api, h.UserHandler)
+	Login(api, h.UserHandler, h.signingKey)
 }

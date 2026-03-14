@@ -32,7 +32,6 @@ type Account struct {
 
 	PasswordHash  string `gorm:"size:255"`
   	Refresh_token *string
-  	Access_token  *string
 
 	Provider string	
 }
@@ -59,6 +58,7 @@ func HashPassword(password string) (string, error){
 }
 
 
-func VerifyPassword(hashedPassword, password string) (error){
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+func VerifyPassword(hashedPassword, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err == nil
 }
