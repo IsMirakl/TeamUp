@@ -58,7 +58,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"access_token": token,
+		"accessToken": token,
 	})
 
 }
