@@ -3,6 +3,7 @@ package handlers
 import (
 	userDTO "backend/internal/dto/user"
 	"backend/internal/service"
+	"backend/internal/validation"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,12 +19,18 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 		service: service,
 	}
 }
-
-func (h *UserHandler) Create(c *gin.Context) {
+func (h *UserHandler) Create(c *gin.Context) { 
 
 	var dto userDTO.CreateUserDTO
 
 	if err := c.ShouldBindJSON(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if err := validation.Validate.Struct(dto); err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -46,8 +53,15 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 	var dto userDTO.LoginUserDTO
 
-	if err := c.BindJSON(&dto); err != nil {
+	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := validation.Validate.Struct(dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
