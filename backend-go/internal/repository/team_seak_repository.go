@@ -10,9 +10,10 @@ import (
 
 type TeamSeekRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, post *models.TeamSeekPost) error
+	CreateAuthor(ctx context.Context, tx *gorm.DB, author *models.Author) error
 	Update(ctx context.Context, tx *gorm.DB, post *models.TeamSeekPost) error
 	GetPostById(ctx context.Context, ID string) (*models.TeamSeekPost, error)
-	GetAuthorPost(ctx context.Context, AuthorId string) (*models.TeamSeekPost, error)
+	GetAuthorPost(ctx context.Context, authorId string) ([]models.TeamSeekPost, error)
 }
 
 
@@ -25,24 +26,36 @@ func NewTeamSeekPostRepository(db *gorm.DB) TeamSeekRepository {
 }
 
 func (r *teamSeekPostRepository) Create(ctx context.Context, tx *gorm.DB, post *models.TeamSeekPost) (error) {
+	
 	if tx == nil {
 		tx = r.db
 	}
 	return tx.WithContext(ctx).Create(post).Error
 }
 
-
-func (r *teamSeekPostRepository) Update(ctx context.Context, tx *gorm.DB, post *models.TeamSeekPost) (error) {
+func (r *teamSeekPostRepository) CreateAuthor(ctx context.Context, tx *gorm.DB, author *models.Author) (error) {
+	
 	if tx == nil {
 		tx = r.db
 	}
 
-	return tx.WithContext(ctx).Updates(post).Error
+	return tx.WithContext(ctx).Create(author).Error
+}
+
+func (r *teamSeekPostRepository) Update(ctx context.Context, tx *gorm.DB, post *models.TeamSeekPost) (error) {
+	
+	if tx == nil {
+		tx = r.db
+	}
+
+	return tx.WithContext(ctx).Select("*").Updates(post).Error
 }
 
 
 func (r *teamSeekPostRepository) GetPostById(ctx context.Context, ID string) (*models.TeamSeekPost, error) {
+	
 	var post models.TeamSeekPost
+	
 	err := r.db.First(&post, ID).Error
 
 	if err != nil {
@@ -53,13 +66,19 @@ func (r *teamSeekPostRepository) GetPostById(ctx context.Context, ID string) (*m
 }
 
 
-func (r *teamSeekPostRepository) GetAuthorPost(ctx context.Context, AuthorId string) (*models.TeamSeekPost, error) {
-	var author models.TeamSeekPost
-	err := r.db.Preload("AuthorID").Find(author).Error
+func (r *teamSeekPostRepository) GetAuthorPost(ctx context.Context, authorId string) ([]models.TeamSeekPost, error) {
+	
+	var posts []models.TeamSeekPost
+	
+	err := r.db.WithContext(ctx).
+	Where("author_id = ?", authorId).
+	Preload("Author").
+	Preload("Author.User").
+	Find(&posts).Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &author, nil
+	return posts, nil
 }
