@@ -29,5 +29,4 @@ type Author struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
 	UserID uint
-	User User `gorm:"foreignKey:UserID;references:UserID"`
 }

@@ -17,7 +17,7 @@ type User struct {
 	Email string `gorm:"unique;not null"`
 	EmailVerified bool
 
-	Account *Account `gorm:"foreignKey:UserID"`
+	Account *Account `gorm:"foreignKey:UserID;references:UserID;constraint:OnDelete:CASCADE"`
 
 	Name string `gorm:"size:25;not null;"`
 	Avatar *string
@@ -28,7 +28,6 @@ type User struct {
 
 type Account struct {
 	UserID uint `gorm:"primaryKey"`
-	User User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
 	PasswordHash  string `gorm:"size:255"`
   	Refresh_token *string

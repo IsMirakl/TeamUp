@@ -72,10 +72,6 @@ func (s *UserService) GetUserById(ctx context.Context, UserID uint) (*models.Use
 	return s.repository.GetUserById(ctx, UserID)
 }
 
-// func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-// 	return s.repository.GetUserByEmail(ctx, email, nil)
-// }
-
 
 func (s *UserService) Login(ctx context.Context, dto *user.LoginUserDTO) (string, error) {
 
@@ -101,5 +97,4 @@ func (s *UserService) Login(ctx context.Context, dto *user.LoginUserDTO) (string
 	}
 
 	return token, nil
-
 }
