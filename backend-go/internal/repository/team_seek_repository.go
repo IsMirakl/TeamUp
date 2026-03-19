@@ -3,6 +3,7 @@ package repository
 import (
 	"backend/internal/models"
 	"context"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -56,7 +57,11 @@ func (r *teamSeekPostRepository) GetPostById(ctx context.Context, ID string) (*m
 	
 	var post models.TeamSeekPost
 	
-	err := r.db.First(&post, ID).Error
+	err := r.db.WithContext(ctx).Where("id = ?", ID).First(&post).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
 
 	if err != nil {
 		return nil, err
