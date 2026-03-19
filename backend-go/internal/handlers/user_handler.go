@@ -25,7 +25,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": "invalid json",
 		})
 		return
 	}
