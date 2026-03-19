@@ -2,6 +2,7 @@ package service
 
 import (
 	teamseekpost "backend/internal/dto/team_seek_post"
+	appErrors "backend/internal/errors"
 	"backend/internal/models"
 	"backend/internal/repository"
 	"context"
@@ -83,7 +84,20 @@ func (s *TeamSeekPostService) Update(ctx context.Context, dto *teamseekpost.Upda
 
 
 func (s *TeamSeekPostService) GetPostById(ctx context.Context, ID string) (*models.TeamSeekPost, error) {
-	return s.repository.GetPostById(ctx, ID)
+
+	post, err := s.repository.GetPostById(ctx, ID)
+
+
+	if err != nil {
+		return nil, err
+	}
+
+	if post == nil {
+		return nil, appErrors.ErrPostNotFound
+	}
+
+	return post, err
+
 }
 
 
