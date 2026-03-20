@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	UserID uint	`gorm:"primaryKey"`
+	UserID string	`gorm:"primaryKey"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -27,7 +27,7 @@ type User struct {
 }
 
 type Account struct {
-	UserID uint `gorm:"primaryKey"`
+	UserID string `gorm:"primaryKey"`
 
 	PasswordHash  string `gorm:"size:255"`
   	Refresh_token *string

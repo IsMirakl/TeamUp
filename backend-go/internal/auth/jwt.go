@@ -11,7 +11,7 @@ import (
 )
 
 type Claims struct {
-	UserID uint64 `json:"user_id"`
+	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -21,7 +21,7 @@ func init(){
 	}
 }
 
-func CreateToken(userID uint64) (string, error){
+func CreateToken(userID string) (string, error){
 	conf := config.New()
 
 	signingKey := []byte(conf.SECRET_KEY.JWT_SECRET)
