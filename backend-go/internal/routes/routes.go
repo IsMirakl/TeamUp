@@ -9,7 +9,7 @@ import (
 type Routes struct {
 	UserHandler *handlers.UserHandler
 	TeamSeekPostHandler *handlers.TeamSeekPostHandler
-	signingKey []byte
+	SigningKey []byte
 }
 
 func SetupRouter(r *gin.Engine, h *Routes) {
@@ -17,5 +17,5 @@ func SetupRouter(r *gin.Engine, h *Routes) {
 	api := r.Group("/api")
 
 	UserRouter(api, h.UserHandler)
-	PostRouter(api, h.TeamSeekPostHandler)
+	PostRouter(api, h.TeamSeekPostHandler, h.SigningKey)
 }

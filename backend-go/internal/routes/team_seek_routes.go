@@ -2,23 +2,20 @@ package routes
 
 import (
 	"backend/internal/handlers"
+	authMiddleware "backend/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
-// import (
-// 	"backend/internal/handlers"
-
-// 	"github.com/gin-gonic/gin"
-// )
-
-
-func PostRouter(r *gin.RouterGroup, h *handlers.TeamSeekPostHandler) {
-
+func PostRouter(r *gin.RouterGroup, h *handlers.TeamSeekPostHandler, signingKey []byte) {
 	posts := r.Group("/v1/posts")
-	posts.POST("/post", h.Create)
-	posts.PUT("/post/:id", h.Update)
+
 	posts.GET("/post/:id", h.GetPostById)
 	posts.GET("/post/author/:id", h.GetAuthorPost)
 
+	protected := posts.Group("/")
+	protected.Use(authMiddleware.AuthMiddleware(signingKey))
+
+	protected.POST("/post", h.Create)
+	protected.PUT("/post/:id", h.Update)
 }

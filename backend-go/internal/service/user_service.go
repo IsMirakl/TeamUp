@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -36,6 +37,7 @@ func (s *UserService) Create(ctx context.Context, dto *user.CreateUserDTO) (*mod
 
 
 	user := &models.User{
+		UserID: uuid.NewString(),
 		Email: dto.Email,
 		Name: dto.Name,
 		Avatar: dto.Avatar,
@@ -68,7 +70,7 @@ func (s *UserService) Create(ctx context.Context, dto *user.CreateUserDTO) (*mod
 
 
 
-func (s *UserService) GetUserById(ctx context.Context, UserID uint) (*models.User, error) {
+func (s *UserService) GetUserById(ctx context.Context, UserID string) (*models.User, error) {
 	return s.repository.GetUserById(ctx, UserID)
 }
 
@@ -91,7 +93,7 @@ func (s *UserService) Login(ctx context.Context, dto *user.LoginUserDTO) (string
 		return "", fmt.Errorf("invalid password")
 	}
 
-	token, err := auth.CreateToken(uint64(user.UserID))
+	token, err := auth.CreateToken(user.UserID)
 	if err != nil {
 		return "", err
 	}
