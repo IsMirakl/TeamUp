@@ -14,8 +14,12 @@ import (
 
 func main() {
 
+	cfg := config.New()
+	signingKey := []byte(cfg.SECRET_KEY.JWT_SECRET)
+
 	db := config.SetupDB()
 	r := gin.Default()
+
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:5173"},
 		AllowMethods: []string{"PUT", "GET", "POST", "PATCH",
@@ -26,13 +30,20 @@ func main() {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	repository := repository.NewUserRepository(db)
-	service := service.NewUserService(db, repository)
-	handler := handlers.NewUserHandler(service)
+userRepo := repository.NewUserRepository(db)
+userService := service.NewUserService(db, userRepo)
+userHandler := handlers.NewUserHandler(userService)
 
-	routes.SetupRouter(r, &routes.Routes{
-		UserHandler: handler,
-	})
+teamSeekPostRepo := repository.NewTeamSeekPostRepository(db)
+teamSeekPostService := service.NewTeamSeekPostService(db, teamSeekPostRepo)
+teamSeekPostHandler := handlers.NewTeamSeekPostHandler(teamSeekPostService)
+
+routes.SetupRouter(r, &routes.Routes{
+	UserHandler:         userHandler,
+	TeamSeekPostHandler: teamSeekPostHandler,
+	SigningKey: signingKey,
+})
+
 
 	r.Run(":8080")
 }
