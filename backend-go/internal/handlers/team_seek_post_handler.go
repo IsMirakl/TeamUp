@@ -23,17 +23,40 @@ func NewTeamSeekPostHandler(service *service.TeamSeekPostService) *TeamSeekPostH
 }
 
 func (h *TeamSeekPostHandler) Create(c *gin.Context) {
+	userIDInterface, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "user_id not found in context",
+		})
+		return
+	}
+
+	userID, ok := userIDInterface.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "invalid user_id type",
+		})
+		return
+	}
 
 	var dto postDTO.CreateTeamSeekPostDTO
-	
+
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid json",
 		})
+		return
 	}
 
-	post, err := h.service.Create(c.Request.Context(), &dto)
-	if err = validation.Validate.Struct(dto); err != nil {
+	if err := validation.Validate.Struct(dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	post, err := h.service.Create(c.Request.Context(), &dto, userID)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})

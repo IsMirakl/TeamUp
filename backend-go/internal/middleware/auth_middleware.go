@@ -29,13 +29,13 @@ func AuthMiddleware(signingKey []byte) gin.HandlerFunc {
 		claims, err := auth.ValidateToken(tokenString, signingKey)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid or expired token",
+				"error": err.Error(),
 			})
 			return
 		}
 
 		c.Set("userID", claims.UserID)
-		
+
 		c.Next()
 	}
 	

@@ -3,10 +3,12 @@ package service
 import (
 	teamseekpost "backend/internal/dto/team_seek_post"
 	appErrors "backend/internal/errors"
+
 	"backend/internal/models"
 	"backend/internal/repository"
 	"context"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -23,14 +25,16 @@ func NewTeamSeekPostService(db * gorm.DB, repository repository.TeamSeekReposito
 }
 
 
-func (s *TeamSeekPostService) Create(ctx context.Context, dto *teamseekpost.CreateTeamSeekPostDTO) (*models.TeamSeekPost, error) {
+func (s *TeamSeekPostService) Create(ctx context.Context, dto *teamseekpost.CreateTeamSeekPostDTO, userID string) (*models.TeamSeekPost, error) {
 	
 	tx := s.db.Begin()
 
 	post := &models.TeamSeekPost{
+		ID: uuid.NewString(),
 		Title: dto.Title,
 		Description: dto.Description,
 		Tags: dto.Tags,
+		AuthorID: userID,
 	}
 
 	err := s.repository.Create(ctx, tx, post)
@@ -39,18 +43,7 @@ func (s *TeamSeekPostService) Create(ctx context.Context, dto *teamseekpost.Crea
 		return nil, err
 	}
 
-	author := &models.Author{
-		ID: post.AuthorId,
-	}
-	
-	
-	err = s.repository.CreateAuthor(ctx, tx, author)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
 
-	
 	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}

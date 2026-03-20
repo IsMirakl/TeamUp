@@ -11,7 +11,6 @@ import (
 
 type TeamSeekRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, post *models.TeamSeekPost) error
-	CreateAuthor(ctx context.Context, tx *gorm.DB, author *models.Author) error
 	Update(ctx context.Context, tx *gorm.DB, post *models.TeamSeekPost) error
 	GetPostById(ctx context.Context, ID string) (*models.TeamSeekPost, error)
 	GetAuthorPost(ctx context.Context, authorId string) ([]models.TeamSeekPost, error)
@@ -31,16 +30,8 @@ func (r *teamSeekPostRepository) Create(ctx context.Context, tx *gorm.DB, post *
 	if tx == nil {
 		tx = r.db
 	}
+
 	return tx.WithContext(ctx).Create(post).Error
-}
-
-func (r *teamSeekPostRepository) CreateAuthor(ctx context.Context, tx *gorm.DB, author *models.Author) (error) {
-	
-	if tx == nil {
-		tx = r.db
-	}
-
-	return tx.WithContext(ctx).Create(author).Error
 }
 
 func (r *teamSeekPostRepository) Update(ctx context.Context, tx *gorm.DB, post *models.TeamSeekPost) (error) {
