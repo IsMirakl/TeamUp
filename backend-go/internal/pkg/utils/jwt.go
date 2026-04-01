@@ -8,21 +8,23 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 type Claims struct {
 	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
+	log *logrus.Logger
 }
 
 func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Print("No .env file found")
+		log.Fatal("No .env file found")
 	}
 }
 
-func CreateToken(userID string) (string, error) {
-	conf := config.New()
+func CreateToken(userID string, log *logrus.Logger) (string, error) {
+	conf := config.New(log)
 
 	signingKey := []byte(conf.SECRET_KEY.JWT_SECRET)
 

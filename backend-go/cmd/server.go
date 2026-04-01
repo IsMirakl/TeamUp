@@ -13,17 +13,23 @@ import (
 	"backend/internal/pkg/config"
 	"time"
 
+	"backend/internal/pkg/logger"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 
-	cfg := config.New()
+	log := logger.NewLogger()
+	cfg := config.New(log)
 	signingKey := []byte(cfg.SECRET_KEY.JWT_SECRET)
 
-	db := config.SetupDB()
+	db := config.SetupDB(log)
 	r := gin.Default()
+
+
+	log.Info("Server started")
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:5173"},
@@ -36,13 +42,13 @@ func main() {
 	}))
 
 	registerRepo := registeruser.NewUserRepository(db)
-	registerService := registeruser.NewUserService(db, registerRepo)
-	registerHandler := registeruser.NewUserHandler(registerService)
+	registerService := registeruser.NewUserService(db, registerRepo, log)
+	registerHandler := registeruser.NewUserHandler(registerService, log)
 
 	getUserByEmailRepo := getuserbyemail.NewRepository(db)
 	getUserByEmailService := getuserbyemail.NewService(getUserByEmailRepo)
-	loginService := loginuser.NewUserService(getUserByEmailService)
-	loginHandler := loginuser.NewUserHandler(loginService)
+	loginService := loginuser.NewUserService(getUserByEmailService, log)
+	loginHandler := loginuser.NewUserHandler(loginService, log)
 
 	createPostRepo := createpost.NewRepository(db)
 	createPostService := createpost.NewService(db, createPostRepo)
@@ -69,6 +75,7 @@ func main() {
 		getPostByIdHandler,
 		getAuthorPostHandler,
 		signingKey,
+		log,
 	)
 
 	r.Run(":8080")

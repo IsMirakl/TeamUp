@@ -3,21 +3,26 @@ package config
 import (
 	"log"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 type EnvConfig struct {
 	JWT_SECRET string
 }
 
+
 type Config struct {
 	SECRET_KEY EnvConfig
+	log *logrus.Logger
 }
 
-func New() *Config{
+func New(log *logrus.Logger) *Config{
 	return &Config{
 		SECRET_KEY: EnvConfig{
 			JWT_SECRET: getEnv("SECRET_KEY"),
 		},
+		log: log,
 	}
 }
 

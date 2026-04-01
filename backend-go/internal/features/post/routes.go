@@ -8,6 +8,7 @@ import (
 	sharedmiddleware "backend/internal/shared/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func PostRouter(
@@ -17,6 +18,7 @@ func PostRouter(
 	getByIdHandler *getbyid.Handler,
 	getAuthorHandler *getauthorpost.Handler,
 	signingKey []byte,
+	log *logrus.Logger,
 ) {
 	posts := r.Group("/v1/posts")
 
@@ -24,7 +26,7 @@ func PostRouter(
 	posts.GET("/post/author/:authorId", getAuthorHandler.Handle)
 
 	protected := posts.Group("/")
-	protected.Use(sharedmiddleware.AuthMiddleware(signingKey))
+	protected.Use(sharedmiddleware.AuthMiddleware(signingKey, log))
 
 	protected.POST("/post", createHandler.Handle)
 	protected.PUT("/post/:id", updateHandler.Handle)

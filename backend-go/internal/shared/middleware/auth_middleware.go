@@ -6,12 +6,17 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
-func AuthMiddleware(signingKey []byte) gin.HandlerFunc {
+func AuthMiddleware(signingKey []byte, log *logrus.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Info("auth middleware triggered")
+
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
+			log.Warn("missing Authorization header")
+
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "missing Authorization header",
 			})
@@ -19,7 +24,10 @@ func AuthMiddleware(signingKey []byte) gin.HandlerFunc {
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
 		if tokenString == authHeader {
+			log.Warn("invalid Authorization header format")
+
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "invalid Authorization header format",
 			})
@@ -28,6 +36,8 @@ func AuthMiddleware(signingKey []byte) gin.HandlerFunc {
 
 		claims, err := auth.ValidateToken(tokenString, signingKey)
 		if err != nil {
+			log.WithError(err).Error("failed to validate token")
+
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": err.Error(),
 			})

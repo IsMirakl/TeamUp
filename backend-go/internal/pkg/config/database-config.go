@@ -9,15 +9,16 @@ import (
 	usermodel "backend/internal/features/user/model"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func SetupDB() *gorm.DB {
+func SetupDB(log *logrus.Logger) *gorm.DB {
 	errEnv := godotenv.Load()
 
 	if errEnv != nil {
-		log.Print("No .env file found")
+		log.Fatal("No .env file found")
 	}
 
 	dbUser := os.Getenv("POSTGRES_USER")
@@ -30,7 +31,7 @@ func SetupDB() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Printf("failed to connect to the database")
+		log.Fatal("failed to connect to the database")
 	}
 
 	db.AutoMigrate(&usermodel.User{}, &usermodel.Account{}, &postmodel.Post{})
@@ -42,7 +43,7 @@ func CloseDB(db *gorm.DB) {
 	db2, err := db.DB()
 
 	if err != nil {
-		log.Printf("failed to close the database connection")
+		log.Fatal("failed to close the database connection")
 	}
 
 	db2.Close()
