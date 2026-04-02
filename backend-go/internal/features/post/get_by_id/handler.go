@@ -20,6 +20,7 @@ func NewHandler(service *Service) *Handler {
 
 func (h *Handler) Handle(c *gin.Context) {
 	id := c.Param("id")
+	
 	if err := validation.Validate.Var(id, "required"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid id",

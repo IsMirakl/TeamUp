@@ -36,7 +36,7 @@ func (h *Handler) Handle(c *gin.Context) {
 	}
 
 	if err := validation.Validate.Struct(request); err != nil {
-		h.log.WithError(err).Error("failed to validate request")
+		h.log.WithError(err).Warn("failed to validate request")
 
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
