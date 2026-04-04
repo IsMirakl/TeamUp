@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createAccount = `-- name: CreateAccount :one
+const createAccount = `-- name: CreateAccount :exec
 INSERT INTO accounts (
     user_id,
     password_hash,
@@ -20,7 +20,6 @@ INSERT INTO accounts (
 ) VALUES (
     $1, $2, $3, $4
 )
-RETURNING user_id, password_hash, refresh_token, provider
 `
 
 type CreateAccountParams struct {
@@ -30,19 +29,12 @@ type CreateAccountParams struct {
 	Provider     Providers
 }
 
-func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
-	row := q.db.QueryRow(ctx, createAccount,
+func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) error {
+	_, err := q.db.Exec(ctx, createAccount,
 		arg.UserID,
 		arg.PasswordHash,
 		arg.RefreshToken,
 		arg.Provider,
 	)
-	var i Account
-	err := row.Scan(
-		&i.UserID,
-		&i.PasswordHash,
-		&i.RefreshToken,
-		&i.Provider,
-	)
-	return i, err
+	return err
 }

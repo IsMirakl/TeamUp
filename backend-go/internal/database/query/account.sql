@@ -1,4 +1,4 @@
--- name: CreateAccount :one
+-- name: CreateAccount :exec
 INSERT INTO accounts (
     user_id,
     password_hash,
@@ -6,5 +6,4 @@ INSERT INTO accounts (
     provider
 ) VALUES (
     $1, $2, $3, $4
-)
-RETURNING *;
+);
