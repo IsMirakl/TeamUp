@@ -1,31 +1,21 @@
 package getbyid
 
 import (
-	"backend/internal/features/user/model"
+	database "backend/internal/database/sqlc"
 	"context"
 
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Repository interface {
-	GetUserById(ctx context.Context, userID string) (*model.User, error)
+type Repository struct {
+	q *database.Queries
 }
 
-type userRepository struct {
-	db *gorm.DB
+
+func NewRepository(q *database.Queries) *Repository {
+	return &Repository{q: q}
 }
 
-func NewRepository(db *gorm.DB) Repository {
-	return &userRepository{db: db}
-}
-
-func (r *userRepository) GetUserById(ctx context.Context, userID string) (*model.User, error) {
-	var user model.User
-
-	err := r.db.WithContext(ctx).First(&user, userID).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
+func (r *Repository) GetUserById(ctx context.Context, userID pgtype.UUID) (database.User, error) {
+	return r.q.GetUserByID(ctx, userID)
 }

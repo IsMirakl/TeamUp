@@ -6,49 +6,46 @@ import (
 	auth "backend/internal/pkg/utils"
 	"context"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
 )
 
-type UserFetcher interface {
-	GetByEmail(ctx context.Context, email string) (*model.User, error)
-}
 
 type Service struct {
-	userFetcher UserFetcher
-	log         *logrus.Logger
+	repository *Repository
+	log        *logrus.Logger
 }
 
-func NewUserService(userFetcher UserFetcher, log *logrus.Logger) *Service {
-	return &Service{userFetcher: userFetcher, log: log}
+func NewUserService(
+	repository *Repository, log *logrus.Logger) *Service {
+	return &Service{
+		repository: repository,
+		log:       log,
+	}
 }
 
 func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (string, error) {
-
 	s.log.WithField("email", request.Email).Info("login request received")
 
-	user, err := s.userFetcher.GetByEmail(ctx, request.Email)
+	user, err := s.repository.GetUserWithPasswordByEmail(ctx, request.Email)
 	if err != nil {
-		s.log.WithError(err).Error("failed to fetch user by email")
+		if err == pgx.ErrNoRows {
+			s.log.Warn("user not found")
+			return "", nil
+		}
 
+		s.log.WithError(err).Error("failed to fetch user by email")
 		return "", err
 	}
 
-	if user == nil || user.Account == nil {
-		s.log.Warn("user not found or invalid data")
-
-		return "", nil
-	}
-
-	if !model.VerifyPassword(user.Account.PasswordHash, request.Password) {
+	if !model.VerifyPassword(user.PasswordHash, request.Password) {
 		s.log.Warn("invalid password")
-
 		return "", nil
 	}
 
-	token, err := auth.CreateToken(user.UserID, s.log)
+	token, err := auth.CreateToken(user.UserID.String(), s.log)
 	if err != nil {
 		s.log.WithError(err).Error("failed to create token")
-		
 		return "", err
 	}
 

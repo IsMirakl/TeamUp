@@ -1,40 +1,28 @@
 package registeruser
 
 import (
-	"backend/internal/features/user/model"
+	database "backend/internal/database/sqlc"
 	"context"
 
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Repository interface {
-	Create(ctx context.Context, tx *gorm.DB, user *model.User) error
-	CreateAccount(ctx context.Context, tx *gorm.DB, account *model.Account) error
-}
-
 type userRepository struct {
-	db *gorm.DB
+	q    *database.Queries
+	pool *pgxpool.Pool
 }
 
-func NewUserRepository(db *gorm.DB) Repository {
-	return &userRepository{db: db}
-}
-
-
-func (r *userRepository) Create(ctx context.Context, tx *gorm.DB, user *model.User) (error) {
-	
-	if tx == nil {
-		tx = r.db
+func NewUserRepository(q *database.Queries, pool *pgxpool.Pool) *userRepository {
+	return &userRepository{
+		q:    q,
+		pool: pool,
 	}
-
-	return tx.WithContext(ctx).Create(user).Error
 }
 
-func (r *userRepository) CreateAccount(ctx context.Context, tx *gorm.DB, account *model.Account) (error) {
-	
-	if tx  == nil {
-		tx = r.db
-	}
+func (r *userRepository) Create(ctx context.Context, arg database.CreateUserParams) (database.User, error) {
+	return r.q.CreateUser(ctx, arg)
+}
 
-	return tx.WithContext(ctx).Create(account).Error
+func (r *userRepository) CreateAccount(ctx context.Context, arg database.CreateAccountParams) (error) {
+	return r.q.CreateAccount(ctx, arg)
 }

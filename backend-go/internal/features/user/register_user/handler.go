@@ -66,10 +66,10 @@ func (h *Handler) Handle(c *gin.Context) {
 	}
 
 	h.log.WithFields(logrus.Fields{
-		"user_id": user.UserID,
-		"email": user.Email,
+		"user_id": user.UserID.String(),
+		"email":   user.Email,
 	}).Info("User created successfully")
 
-	response := dto.ToUserResponse(user)
+	response := dto.ToUserResponse(*user)
 	c.JSON(http.StatusCreated, response)
 }

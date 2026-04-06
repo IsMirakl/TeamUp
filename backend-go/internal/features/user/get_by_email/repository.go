@@ -1,31 +1,18 @@
 package getbyemail
 
 import (
-	"backend/internal/features/user/model"
+	database "backend/internal/database/sqlc"
 	"context"
-
-	"gorm.io/gorm"
 )
 
-type Repository interface {
-	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
+type Repository struct {
+	q *database.Queries
 }
 
-type userRepository struct {
-	db *gorm.DB
+func NewRepository(q *database.Queries) *Repository {
+	return &Repository{q: q}
 }
 
-func NewRepository(db *gorm.DB) Repository {
-	return &userRepository{db: db}
-}
-
-func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	var user model.User
-
-	err := r.db.WithContext(ctx).Preload("Account").Where("email = ?", email).Take(&user).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
+func (r *Repository) GetUserByEmail(ctx context.Context, email string) (database.User, error) {
+	return r.q.GetUserByEmail(ctx, email)
 }

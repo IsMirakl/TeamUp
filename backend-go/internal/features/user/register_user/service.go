@@ -1,87 +1,103 @@
 package registeruser
 
 import (
+	database "backend/internal/database/sqlc"
 	"backend/internal/features/user/dto"
 	"backend/internal/features/user/model"
-
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type Service struct {
-	db *gorm.DB
-	repository Repository
-	log *logrus.Logger
+	repository *userRepository
+	log        *logrus.Logger
 }
 
-func NewUserService(db *gorm.DB, repository Repository, log *logrus.Logger) *Service {
+func NewUserService(repository *userRepository, log *logrus.Logger) *Service {
 	return &Service{
-		db: db,
 		repository: repository,
-		log: log,
+		log:        log,
 	}
 }
 
-func (s *Service) Create(ctx context.Context, dto *dto.CreateUserDTO) (*model.User, error) {
-	
-	tx := s.db.Begin()
+func (s *Service) Create(ctx context.Context, dto *dto.CreateUserDTO) (*database.User, error) {
+	tx, err := s.repository.pool.Begin(ctx)
+	if err != nil {
+		s.log.WithError(err).Error("failed to begin transaction")
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
 
-	s.log.WithField("email", dto.Email).Info("Creating user")
+	qtx := s.repository.q.WithTx(tx)
+
+	s.log.WithField("email", dto.Email).Info("creating user")
 
 	hash, err := model.HashPassword(dto.Password)
 	if err != nil {
-		tx.Rollback()
-		
-		s.log.WithError(err).Error("Failed to hash password")
+		s.log.WithError(err).Error("failed to hash password")
 		return nil, err
 	}
 
+	userID := uuid.New()
 
-	user := &model.User{
-		UserID: uuid.NewString(),
-		Email: dto.Email,
-		Name: dto.Name,
-		Avatar: dto.Avatar,
+	var avatar pgtype.Text
+	if dto.Avatar != nil {
+		avatar = pgtype.Text{
+			String: *dto.Avatar,
+			Valid:  true,
+		}
+	} else {
+		avatar = pgtype.Text{
+			Valid: false,
+		}
 	}
 
-	err = s.repository.Create(ctx, tx, user) 
-		if err != nil {
-			tx.Rollback()
-			s.log.WithFields(logrus.Fields{
-				"user_id": user.UserID,
-				"email": user.Email,
-			}).WithError(err).Error("Failed create user")
-
-			return nil, err
-		}
-
+	user, err := qtx.CreateUser(ctx, database.CreateUserParams{
+		UserID:           pgtype.UUID{Bytes: userID, Valid: true},
+		Email:            dto.Email,
+		Name:             dto.Name,
+		Avatar:           avatar,
+		Role:             "user",
+		SubscriptionPlan: "Free",
+	})
+	if err != nil {
 		s.log.WithFields(logrus.Fields{
-			"user_id": user.UserID,
-			"email": user.Email,
-		}).Info("User successfully created")
+			"user_id": userID.String(),
+			"email":   dto.Email,
+		}).WithError(err).Error("failed to create user")
 
-		account := &model.Account{
-			UserID: user.UserID,
-			PasswordHash: hash,
-			Provider: "local",
-		}
-		
-		err = s.repository.CreateAccount(ctx, tx, account) 
-		if err != nil {
-			tx.Rollback()
-			s.log.WithField("user_id", account.UserID).WithError(err).Error("Failed create account")
+		return nil, err
+	}
 
-			return nil, err
-		}
+	err = qtx.CreateAccount(ctx, database.CreateAccountParams{
+		UserID:           pgtype.UUID{Bytes: userID, Valid: true},
+		PasswordHash: hash,
+		Provider:     "local",
+	})
+	if err != nil {
+		s.log.WithField("user_id", userID.String()).
+			WithError(err).
+			Error("failed to create account")
 
-		if err := tx.Commit().Error; err != nil {
-			return nil, err
-		}
+		return nil, err
+	}
 
-		s.log.WithField("user_id", account.UserID).Info("Account successfully created")
-		
-		return user, nil
+	if err := tx.Commit(ctx); err != nil {
+		s.log.WithField("user_id", userID.String()).
+			WithError(err).
+			Error("failed to commit transaction")
+		return nil, err
+	}
+
+	s.log.WithFields(logrus.Fields{
+		"user_id": userID.String(),
+		"email":   dto.Email,
+	}).Info("user successfully created")
+
+	return &user, nil
 }

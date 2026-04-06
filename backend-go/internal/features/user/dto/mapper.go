@@ -1,13 +1,21 @@
 package dto
 
-import "backend/internal/features/user/model"
+import (
+	database "backend/internal/database/sqlc"
+)
 
 
-func ToUserResponse(user *model.User) *ResponseUserDTO {
-	return &ResponseUserDTO {
-		UserID: user.UserID,
-		Email: user.Email,
-		Name: user.Name,
-		Avatar: user.Avatar,
+func ToUserResponse(user database.User) *ResponseUserDTO {
+	var avatar *string
+
+	if user.Avatar.Valid {
+		avatar = &user.Avatar.String
+	}
+
+	return &ResponseUserDTO{
+		UserID: user.UserID.String(),
+		Email:  user.Email,
+		Name:   user.Name,
+		Avatar: avatar,
 	}
 }
