@@ -24,3 +24,17 @@ LIMIT 1;
 SELECT * FROM users
 WHERE email = $1 AND deleted_at IS NULL
 LIMIT 1;
+
+-- name: GetUserWithPasswordByEmail :one
+SELECT 
+    u.user_id,
+    u.email,
+    u.name,
+    u.avatar,
+    u.role,
+    u.subscription_plan,
+    a.password_hash
+FROM users u
+JOIN accounts a ON a.user_id = u.user_id
+WHERE u.email = $1
+LIMIT 1;

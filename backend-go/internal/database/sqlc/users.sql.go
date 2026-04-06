@@ -109,3 +109,43 @@ func (q *Queries) GetUserByID(ctx context.Context, userID pgtype.UUID) (User, er
 	)
 	return i, err
 }
+
+const getUserWithPasswordByEmail = `-- name: GetUserWithPasswordByEmail :one
+SELECT 
+    u.user_id,
+    u.email,
+    u.name,
+    u.avatar,
+    u.role,
+    u.subscription_plan,
+    a.password_hash
+FROM users u
+JOIN accounts a ON a.user_id = u.user_id
+WHERE u.email = $1
+LIMIT 1
+`
+
+type GetUserWithPasswordByEmailRow struct {
+	UserID           pgtype.UUID
+	Email            string
+	Name             string
+	Avatar           pgtype.Text
+	Role             Roles
+	SubscriptionPlan SubscriptionPlans
+	PasswordHash     string
+}
+
+func (q *Queries) GetUserWithPasswordByEmail(ctx context.Context, email string) (GetUserWithPasswordByEmailRow, error) {
+	row := q.db.QueryRow(ctx, getUserWithPasswordByEmail, email)
+	var i GetUserWithPasswordByEmailRow
+	err := row.Scan(
+		&i.UserID,
+		&i.Email,
+		&i.Name,
+		&i.Avatar,
+		&i.Role,
+		&i.SubscriptionPlan,
+		&i.PasswordHash,
+	)
+	return i, err
+}
