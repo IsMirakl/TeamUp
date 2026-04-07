@@ -30,5 +30,5 @@ SET
     tags = COALESCE($3, tags),
     updated_at = NOW()
 WHERE id = $4
-RETURNING *;
+RETURNING id, title, description, tags;
 

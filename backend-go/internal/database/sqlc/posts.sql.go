@@ -107,7 +107,7 @@ SET
     tags = COALESCE($3, tags),
     updated_at = NOW()
 WHERE id = $4
-RETURNING id, created_at, updated_at, deleted_at, title, description, tags, author_id
+RETURNING id, title, description, tags
 `
 
 type UpdatePostParams struct {
@@ -117,23 +117,26 @@ type UpdatePostParams struct {
 	ID          pgtype.UUID
 }
 
-func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) (Post, error) {
+type UpdatePostRow struct {
+	ID          pgtype.UUID
+	Title       string
+	Description string
+	Tags        []string
+}
+
+func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) (UpdatePostRow, error) {
 	row := q.db.QueryRow(ctx, updatePost,
 		arg.Title,
 		arg.Description,
 		arg.Tags,
 		arg.ID,
 	)
-	var i Post
+	var i UpdatePostRow
 	err := row.Scan(
 		&i.ID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
 		&i.Title,
 		&i.Description,
 		&i.Tags,
-		&i.AuthorID,
 	)
 	return i, err
 }
