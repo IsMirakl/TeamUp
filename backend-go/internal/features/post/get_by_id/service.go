@@ -1,34 +1,51 @@
 package getbyid
 
 import (
-	"backend/internal/features/post/model"
-	appErrors "backend/internal/shared/errors"
+	database "backend/internal/database/sqlc"
 	"context"
-	"errors"
 
-	"gorm.io/gorm"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/sirupsen/logrus"
 )
 
 type Service struct {
 	repository Repository
+	log *logrus.Logger
 }
 
-func NewService(repository Repository) *Service {
-	return &Service{repository: repository}
+func NewService(repository Repository, log *logrus.Logger) *Service {
+	return &Service{repository: repository, log: log}
 }
 
-func (s *Service) GetById(ctx context.Context, id string) (*model.Post, error) {
-	post, err := s.repository.GetPostById(ctx, id)
+func (s *Service) GetById(ctx context.Context, id string) (*database.Post, error) {
+	s.log.WithField("post_id", id).Info("GetById called")
+
+	postID, err := uuid.Parse(id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, appErrors.ErrPostNotFound
-		}
-		return nil, err
+		s.log.WithError(err).
+			WithField("userID", id).
+			Error("failed to parse userID")
+
+		return &database.Post{}, err
 	}
 
-	if post == nil {
-		return nil, appErrors.ErrPostNotFound
+	pgID := pgtype.UUID{
+		Bytes: postID,
+		Valid: true,
+	}
+	
+	post, err := s.repository.GetPostById(ctx, pgID)
+	if err != nil {
+		s.log.WithError(err).
+			WithField("post_id", id).
+			Error("failed to get post from repository")
+
+		return &database.Post{}, err
 	}
 
-	return post, nil
+		s.log.WithField("post_id", id).Info("post fetched successfully")
+
+
+	return &post, nil
 }

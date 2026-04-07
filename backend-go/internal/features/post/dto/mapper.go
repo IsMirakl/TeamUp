@@ -1,10 +1,13 @@
 package dto
 
-import "backend/internal/features/post/model"
+import (
+	database "backend/internal/database/sqlc"
+	"backend/internal/features/post/model"
+)
 
-func ToPostResponse(post *model.Post) *ResponsePostDTO {
+func ToPostResponse(post database.Post) *ResponsePostDTO {
 	return &ResponsePostDTO{
-		ID:          post.ID,
+		ID:          post.ID.String(),
 		Title:       post.Title,
 		Description: post.Description,
 		Tags:        post.Tags,

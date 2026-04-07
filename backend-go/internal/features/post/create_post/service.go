@@ -1,56 +1,63 @@
 package createpost
 
 import (
+	database "backend/internal/database/sqlc"
 	"backend/internal/features/post/dto"
-	"backend/internal/features/post/model"
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type Service struct {
-	db         *gorm.DB
-	repository Repository
+	repository *Repository
 	log *logrus.Logger
 }
 
-func NewService(db *gorm.DB, repository Repository, log *logrus.Logger) *Service {
+func NewService(repository Repository, log *logrus.Logger) *Service {
 	return &Service{
-		db:         db,
-		repository: repository,
+		repository: &repository,
 		log: log,
 	}
 }
 
-func (s *Service) Create(ctx context.Context, dto *dto.CreatePostDTO, userID string) (*model.Post, error) {
+func (s *Service) Create(ctx context.Context, dto *dto.CreatePostDTO, userID string) (*database.Post, error) {
+	tx, err := s.repository.pool.Begin(ctx)
+	if err != nil {
+		s.log.WithError(err).Error("failed to begin transaction")
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
 	
-	tx := s.db.Begin()
+	
+	qtx := s.repository.q.WithTx(tx)
+	ID := uuid.New()
 	
 	s.log.WithField("title_post", dto.Title).Info("Creating post")
 
-	post := &model.Post{
-		ID:          uuid.NewString(),
+	post, err := qtx.CreatePost(ctx, database.CreatePostParams{
+		ID:          pgtype.UUID{Bytes: ID, Valid: true},
 		Title:       dto.Title,
 		Description: dto.Description,
 		Tags:        dto.Tags,
 		AuthorID:    userID,
-	}
-
-	err := s.repository.Create(ctx, tx, post)
+	})
 	if err != nil {
-		tx.Rollback()
-
-		s.log.WithField("post_ID", post.ID).WithError(err).Error("Failed create post")
+		s.log.WithField("post_ID", post.ID.String()).WithError(err).Error("Failed create post")
 		return nil, err
 	}
 
-	if err := tx.Commit().Error; err != nil {
+	if err := tx.Commit(ctx); err != nil {
+		s.log.WithField("post_id", ID.String()).
+		WithError(err).
+		Error("failed to commit transacton")
 		return nil, err
 	}
 
-	s.log.WithField("post_ID", post.ID).Info("Post successfully created")
+	s.log.WithField("post_ID", ID.String()).Info("Post successfully created")
 
-	return post, nil
+	return &post, nil
 }

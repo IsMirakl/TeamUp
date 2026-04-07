@@ -43,6 +43,6 @@ func (h *Handler) Handle(c *gin.Context) {
 		return
 	}
 
-	response := dto.ToPostResponse(post)
+	response := dto.ToPostResponse(*post)
 	c.JSON(http.StatusOK, response)
 }

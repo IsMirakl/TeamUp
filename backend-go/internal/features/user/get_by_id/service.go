@@ -6,22 +6,31 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/sirupsen/logrus"
 )
 
 type Service struct {
 	repository *Repository
+	log        *logrus.Logger
 }
 
-func NewService(repository *Repository) *Service {
+func NewService(repository *Repository, log *logrus.Logger) *Service {
 	return &Service{
 		repository: repository,
+		log:        log,
 	}
 }
 
-func (s *Service) GetById(ctx context.Context, userID string) (database.User, error) {
+func (s *Service) GetById(ctx context.Context, userID string) (*database.User, error) {
+	s.log.WithField("userID", userID).Info("GetById called")
+
 	id, err := uuid.Parse(userID)
 	if err != nil {
-		return database.User{}, err
+		s.log.WithError(err).
+			WithField("userID", userID).
+			Error("failed to parse userID")
+
+		return &database.User{}, err
 	}
 
 	pgID := pgtype.UUID{
@@ -29,5 +38,16 @@ func (s *Service) GetById(ctx context.Context, userID string) (database.User, er
 		Valid: true,
 	}
 
-	return s.repository.GetUserById(ctx, pgID)
+	user, err := s.repository.GetUserById(ctx, pgID)
+	if err != nil {
+		s.log.WithError(err).
+			WithField("userID", userID).
+			Error("failed to get user from repository")
+
+		return &database.User{}, err
+	}
+
+	s.log.WithField("userID", userID).Info("user fetched successfully")
+
+	return &user, nil
 }

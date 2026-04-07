@@ -1,28 +1,21 @@
 package updatepost
 
 import (
-	"backend/internal/features/post/model"
+	database "backend/internal/database/sqlc"
 	"context"
 
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Repository interface {
-	Update(ctx context.Context, tx *gorm.DB, post *model.Post) error
+type Repository struct {
+	q *database.Queries
+	pool *pgxpool.Pool
 }
 
-type postRepository struct {
-	db *gorm.DB
+func NewRepository(q *database.Queries, pool *pgxpool.Pool) *Repository {
+	return &Repository{q: q, pool: pool}
 }
 
-func NewRepository(db *gorm.DB) Repository {
-	return &postRepository{db: db}
-}
-
-func (r *postRepository) Update(ctx context.Context, tx *gorm.DB, post *model.Post) error {
-	if tx == nil {
-		tx = r.db
-	}
-
-	return tx.WithContext(ctx).Model(&model.Post{}).Where("id = ?", post.ID).Updates(post).Error
+func (r *Repository) Update(ctx context.Context, arg database.UpdatePostParams) (database.Post ,error) {
+	return r.q.UpdatePost(ctx, arg)
 }
