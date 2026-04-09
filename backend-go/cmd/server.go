@@ -1,11 +1,11 @@
 package main
 
 import (
-	// postroutes "backend/internal/features/post"
-	// createpost "backend/internal/features/post/create_post"
-	// getauthorpost "backend/internal/features/post/get_author_post"
-	// getpostbyid "backend/internal/features/post/get_by_id"
-	// updatepost "backend/internal/features/post/update_post"
+	postroutes "backend/internal/features/post"
+	createpost "backend/internal/features/post/create_post"
+	getauthorpost "backend/internal/features/post/get_author_post"
+	getpostbyid "backend/internal/features/post/get_by_id"
+	updatepost "backend/internal/features/post/update_post"
 	userroutes "backend/internal/features/user"
 	getuserbyemail "backend/internal/features/user/get_by_email"
 	getuserbyid "backend/internal/features/user/get_by_id"
@@ -23,8 +23,8 @@ import (
 func main() {
 
 	log := logger.NewLogger()
-	// cfg := config.New(log)
-	// signingKey := []byte(cfg.SECRET_KEY.JWT_SECRET)
+	cfg := config.New(log)
+	signingKey := []byte(cfg.SECRET_KEY.JWT_SECRET)
 
 	db := config.SetupDB()
 	defer db.Pool.Close()
@@ -49,44 +49,44 @@ func main() {
 
 
 	getUserByIdRepo := getuserbyid.NewRepository(db.Queries)
-	getUserByIdService := getuserbyid.NewService(getUserByIdRepo)
+	getUserByIdService := getuserbyid.NewService(getUserByIdRepo, log)
 	getUserByIdHandler := getuserbyid.NewHandler(getUserByIdService, log)
 
 	getUserByEmailRepo := getuserbyemail.NewRepository(db.Queries)
-	getUserByEmailService := getuserbyemail.NewService(getUserByEmailRepo)
+	getUserByEmailService := getuserbyemail.NewService(getUserByEmailRepo, log)
 	getUserByEmailHandler := getuserbyemail.NewHandler(getUserByEmailService, log)
 
 	loginRepo := loginuser.NewRepository(db.Queries)
 	loginService := loginuser.NewUserService(loginRepo, log)
 	loginHandler := loginuser.NewUserHandler(loginService, log)
 
-	// createPostRepo := createpost.NewRepository(db.Queries)
-	// createPostService := createpost.NewService(createPostRepo, log)
-	// createPostHandler := createpost.NewHandler(createPostService, log)
+	createPostRepo := createpost.NewRepository(db.Queries, db.Pool)
+	createPostService := createpost.NewService(createPostRepo, log)
+	createPostHandler := createpost.NewHandler(createPostService, log)
 
-	// updatePostRepo := updatepost.NewRepository(db)
-	// updatePostService := updatepost.NewService(db, updatePostRepo)
-	// updatePostHandler := updatepost.NewHandler(updatePostService)
+	updatePostRepo := updatepost.NewRepository(db.Queries, db.Pool)
+	updatePostService := updatepost.NewService(updatePostRepo, log)
+	updatePostHandler := updatepost.NewHandler(updatePostService)
 
-	// getPostByIdRepo := getpostbyid.NewRepository(db)
-	// getPostByIdService := getpostbyid.NewService(getPostByIdRepo)
-	// getPostByIdHandler := getpostbyid.NewHandler(getPostByIdService)
+	getPostByIdRepo := getpostbyid.NewRepository(db.Queries)
+	getPostByIdService := getpostbyid.NewService(getPostByIdRepo, log)
+	getPostByIdHandler := getpostbyid.NewHandler(getPostByIdService, log)
 
-	// getAuthorPostRepo := getauthorpost.NewRepository(db)
-	// getAuthorPostService := getauthorpost.NewService(getAuthorPostRepo)
-	// getAuthorPostHandler := getauthorpost.NewHandler(getAuthorPostService, log)
+	getAuthorPostRepo := getauthorpost.NewRepository(db.Queries)
+	getAuthorPostService := getauthorpost.NewService(getAuthorPostRepo, log)
+	getAuthorPostHandler := getauthorpost.NewHandler(getAuthorPostService, log)
 
 	api := r.Group("/api")
 	userroutes.UserRouter(api, registerHandler, loginHandler, getUserByIdHandler, getUserByEmailHandler)
-	// postroutes.PostRouter(
-	// 	api,
-	// 	createPostHandler,
-	// 	updatePostHandler,
-	// 	getPostByIdHandler,
-	// 	getAuthorPostHandler,
-	// 	signingKey,
-	// 	log,
-	// )
+	postroutes.PostRouter(
+		api,
+		createPostHandler,
+		updatePostHandler,
+		getPostByIdHandler,
+		getAuthorPostHandler,
+		signingKey,
+		log,
+	)
 
 	r.Run(":8080")
 }
