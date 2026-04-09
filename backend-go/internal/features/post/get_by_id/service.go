@@ -10,11 +10,11 @@ import (
 )
 
 type Service struct {
-	repository Repository
+	repository *Repository
 	log *logrus.Logger
 }
 
-func NewService(repository Repository, log *logrus.Logger) *Service {
+func NewService(repository *Repository, log *logrus.Logger) *Service {
 	return &Service{repository: repository, log: log}
 }
 

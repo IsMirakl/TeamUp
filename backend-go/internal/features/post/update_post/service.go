@@ -1,44 +1,68 @@
 package updatepost
 
 import (
+	database "backend/internal/database/sqlc"
 	"backend/internal/features/post/dto"
-	"backend/internal/features/post/model"
 	"context"
 
-	"gorm.io/gorm"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/sirupsen/logrus"
 )
 
 type Service struct {
-	db         *gorm.DB
-	repository Repository
+	repository *Repository
+	log *logrus.Logger
 }
 
-func NewService(db *gorm.DB, repository Repository) *Service {
+func NewService(repository *Repository, log *logrus.Logger) *Service {
 	return &Service{
-		db:         db,
 		repository: repository,
+		log: log,
 	}
 }
 
-func (s *Service) Update(ctx context.Context, id string, request *dto.UpdatePostDTO) (*model.Post, error) {
-	tx := s.db.Begin()
-
-	post := &model.Post{
-		ID:          id,
-		Title:       request.Title,
-		Description: request.Description,
-		Tags:        request.Tags,
-	}
-
-	err := s.repository.Update(ctx, tx, post)
+func (s *Service) Update(ctx context.Context, postID string ,dto *dto.UpdatePostDTO) (*database.UpdatePostRow, error) {
+	parsedID, err := uuid.Parse(postID)
 	if err != nil {
-		tx.Rollback()
+		s.log.WithField("post_id", postID).WithError(err).Error("invalid post id")
 		return nil, err
 	}
 
-	if err := tx.Commit().Error; err != nil {
+	pgID := pgtype.UUID{
+		Bytes: parsedID,
+		Valid: true,
+	}
+	
+	tx, err := s.repository.pool.Begin(ctx)
+	if err != nil {
+		s.log.WithError(err).Error("failed to begin transaction")
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
+	qtx := s.repository.q.WithTx(tx)
+
+	s.log.WithField("post_id", postID).Info("updating post")
+
+	post, err := qtx.UpdatePost(ctx, database.UpdatePostParams{
+		ID: pgID,
+		Title: dto.Title,
+		Description: dto.Description,
+		Tags: dto.Tags,
+	})
+
+	if err != nil {
+		s.log.WithField("post_id", postID).WithError(err).Error("failed update post");
 		return nil, err
 	}
 
-	return post, nil
+	if err := tx.Commit(ctx); err != nil {
+		s.log.WithField("post_id", postID).WithError(err).Error("failed to commit transaction")
+		return nil, err
+	}
+
+	return &post, nil
 }

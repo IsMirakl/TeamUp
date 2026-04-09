@@ -17,8 +17,8 @@ func NewHandler(service *Service) *Handler {
 }
 
 func (h *Handler) Handle(c *gin.Context) {
-	id := c.Param("id")
-	if err := validation.Validate.Var(id, "required"); err != nil {
+	post_id := c.Param("id")
+	if err := validation.Validate.Var(post_id, "required"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid id",
 		})
@@ -40,7 +40,7 @@ func (h *Handler) Handle(c *gin.Context) {
 		return
 	}
 
-	post, err := h.service.Update(c.Request.Context(), id, &request)
+	post, err := h.service.Update(c.Request.Context(), post_id, &request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -48,6 +48,6 @@ func (h *Handler) Handle(c *gin.Context) {
 		return
 	}
 
-	response := dto.ToPostResponse(post)
+	response := dto.ToPostUpdateResponse(*post)
 	c.JSON(http.StatusOK, response)
 }

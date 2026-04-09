@@ -1,31 +1,18 @@
 package getauthorpost
 
 import (
-	"backend/internal/features/post/model"
+	database "backend/internal/database/sqlc"
 	"context"
-
-	"gorm.io/gorm"
 )
 
-type Repository interface {
-	GetAuthorPost(ctx context.Context, authorId string) ([]model.Post, error)
+type Repository struct {
+	q *database.Queries
 }
 
-type postRepository struct {
-	db *gorm.DB
+func NewRepository(q *database.Queries) *Repository {
+	return &Repository{q: q}
 }
 
-func NewRepository(db *gorm.DB) Repository {
-	return &postRepository{db: db}
-}
-
-func (r *postRepository) GetAuthorPost(ctx context.Context, authorId string) ([]model.Post, error) {
-	var posts []model.Post
-
-	err := r.db.WithContext(ctx).Where("author_id = ?", authorId).Find(&posts).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return posts, nil
+func (r *Repository) GetAuthorPost(ctx context.Context, authorId string) (database.Post, error) {
+	return r.q.GetAuthorPost(ctx, authorId);
 }

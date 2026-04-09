@@ -15,9 +15,9 @@ type Service struct {
 	log *logrus.Logger
 }
 
-func NewService(repository Repository, log *logrus.Logger) *Service {
+func NewService(repository *Repository, log *logrus.Logger) *Service {
 	return &Service{
-		repository: &repository,
+		repository: repository,
 		log: log,
 	}
 }
