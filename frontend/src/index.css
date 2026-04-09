@@ -1,1 +1,6 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Miranda+Sans:ital,wght@0,400..700;1,400..700&display=swap');
+
+@theme {
+  --font-miranda: 'Miranda Sans', sans-serif;
+}

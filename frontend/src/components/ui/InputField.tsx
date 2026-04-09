@@ -17,10 +17,10 @@ const InputField: React.FC<InputFieldProps> = ({
   onChange,
   required,
 }) => (
-  <div className="m-3">
+  <div className="space-y-2">
     <label
       htmlFor={id}
-      className="mb-2 block text-sm font-medium tracking-wide text-gray-700"
+      className="block text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase"
     >
       {label}
     </label>
@@ -31,7 +31,7 @@ const InputField: React.FC<InputFieldProps> = ({
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className="h-12 w-80 rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 text-base font-medium text-gray-800 placeholder-gray-400 transition-all duration-200 ease-in-out invalid:border-red-400 hover:border-blue-400 hover:shadow-md hover:shadow-blue-100 focus:border-blue-500 focus:shadow-xl focus:ring-4 focus:shadow-blue-200/80 focus:ring-blue-100/50 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100"
+      className="h-12 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 text-base text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-sky-300 focus:ring-4 focus:ring-sky-100/70 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100"
     />
   </div>
 );

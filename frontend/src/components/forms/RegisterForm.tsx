@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/useAuth';
 import ButtonSubmit from '../ui/ButtonSubmit';
@@ -45,7 +45,10 @@ const RegisterForm: React.FC<RegisterFormProps> = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-5"
+    >
       <InputField
         id="name"
         label="Имя"
@@ -82,19 +85,13 @@ const RegisterForm: React.FC<RegisterFormProps> = () => {
         onChange={e => handleInputChange('confirmPassword', e.target.value)}
       />
 
-      <div className="mt-7 mb-6 flex justify-center">
+      <div className="pt-2">
         <ButtonSubmit
           id="login"
           type="submit"
           value="Зарегистрироваться"
         />
       </div>
-      <Link
-        className="flex justify-center text-blue-700"
-        to={'/login'}
-      >
-        Уже зарегистрированы ?
-      </Link>
     </form>
   );
 };

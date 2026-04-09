@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import ButtonSubmit from '../ui/ButtonSubmit';
 import InputField from '../ui/InputField';
@@ -39,7 +39,7 @@ const LoginForm: React.FC<LoginFormProps> = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4"
+      className="space-y-5"
     >
       <InputField
         id="email"
@@ -58,27 +58,21 @@ const LoginForm: React.FC<LoginFormProps> = () => {
         onChange={e => handleInputChange('password', e.target.value)}
       />
 
-      <div className="mt-5 ml-5 flex items-center gap-2">
+      <label className="flex items-center gap-3 text-sm text-slate-600">
         <input
           type="checkbox"
-          className="h-5 w-5"
+          className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-2 focus:ring-sky-200"
         />
-        <p>Запомнить меня</p>
-      </div>
+        Запомнить меня
+      </label>
 
-      <div className="mt-7 mb-6 flex justify-center">
+      <div className="pt-2">
         <ButtonSubmit
           id="login"
           type="submit"
           value="Войти"
         />
       </div>
-      <Link
-        className="flex justify-center text-blue-700"
-        to={'/register'}
-      >
-        Нету учетной записи ?
-      </Link>
     </form>
   );
 };
