@@ -15,7 +15,7 @@ const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     user_id,
     email,
-    email_verifed,
+    email_verified,
     name,
     avatar,
     role,
@@ -25,7 +25,7 @@ INSERT INTO users (
     ) VALUES (
     $1, $2, false, $3, $4, $5, $6, NOW(), NOW()
     )
-    RETURNING user_id, created_at, updated_at, deleted_at, email, email_verifed, name, avatar, role, subscription_plan
+    RETURNING user_id, created_at, updated_at, deleted_at, email, email_verified, name, avatar, role, subscription_plan
 `
 
 type CreateUserParams struct {
@@ -53,7 +53,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.Email,
-		&i.EmailVerifed,
+		&i.EmailVerified,
 		&i.Name,
 		&i.Avatar,
 		&i.Role,
@@ -63,7 +63,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT user_id, created_at, updated_at, deleted_at, email, email_verifed, name, avatar, role, subscription_plan FROM users
+SELECT user_id, created_at, updated_at, deleted_at, email, email_verified, name, avatar, role, subscription_plan FROM users
 WHERE email = $1 AND deleted_at IS NULL
 LIMIT 1
 `
@@ -77,7 +77,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.Email,
-		&i.EmailVerifed,
+		&i.EmailVerified,
 		&i.Name,
 		&i.Avatar,
 		&i.Role,
@@ -87,7 +87,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT user_id, created_at, updated_at, deleted_at, email, email_verifed, name, avatar, role, subscription_plan FROM users
+SELECT user_id, created_at, updated_at, deleted_at, email, email_verified, name, avatar, role, subscription_plan FROM users
 WHERE user_id = $1 AND deleted_at IS NULL 
 LIMIT 1
 `
@@ -101,7 +101,7 @@ func (q *Queries) GetUserByID(ctx context.Context, userID pgtype.UUID) (User, er
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.Email,
-		&i.EmailVerifed,
+		&i.EmailVerified,
 		&i.Name,
 		&i.Avatar,
 		&i.Role,

@@ -164,7 +164,7 @@ type User struct {
 	UpdatedAt        pgtype.Timestamptz
 	DeletedAt        pgtype.Timestamptz
 	Email            string
-	EmailVerifed     bool
+	EmailVerified     bool
 	Name             string
 	Avatar           pgtype.Text
 	Role             Roles
