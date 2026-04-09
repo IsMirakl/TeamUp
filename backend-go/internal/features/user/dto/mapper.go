@@ -5,7 +5,7 @@ import (
 )
 
 
-func ToUserResponse(user database.User) *ResponseUserDTO {
+func ToUserResponse(user *database.User) *ResponseUserDTO {
 	var avatar *string
 
 	if user.Avatar.Valid {
