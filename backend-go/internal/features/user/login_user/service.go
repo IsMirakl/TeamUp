@@ -49,5 +49,7 @@ func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (string,
 		return "", err
 	}
 
+	s.log.WithField("email", user.Email).Info("login successful")
+
 	return token, nil
 }

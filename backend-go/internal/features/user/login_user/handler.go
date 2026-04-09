@@ -24,7 +24,7 @@ func NewUserHandler(service *Service, log *logrus.Logger) *Handler {
 func (h *Handler) Handle(c *gin.Context) {
 	var request dto.LoginUserDTO
 
-	h.log.WithField("email", request.Email).Info("login request received")
+	h.log.WithField("email", request.Email).Info("GET /login")
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		h.log.WithError(err).Error("failed to bind json")
@@ -53,8 +53,6 @@ func (h *Handler) Handle(c *gin.Context) {
 		})
 		return
 	}
-
-	h.log.WithField("email", request.Email).Info("login successful")
 
 	response := dto.LoginResponse{AccessToken: token}
 	c.JSON(http.StatusOK, response)

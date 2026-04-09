@@ -23,10 +23,11 @@ func NewHandler(service *Service, log *logrus.Logger) *Handler {
 
 func (h *Handler) Handle(c *gin.Context) {
 	userID := c.Param("userID")
+	h.log.WithField("user_id", userID).Info("GET /user by id")
 
 	if err := validation.Validate.Var(userID, "required"); err != nil {
 		
-		h.log.WithField("user_id", userID).WithError(err).Warn("failed to validate request")
+		h.log.WithError(err).Warn("handler error")
 
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -37,7 +38,7 @@ func (h *Handler) Handle(c *gin.Context) {
 	user, err := h.service.GetById(c.Request.Context(), userID)
 	if err != nil {
 		
-		h.log.WithField("user_id", userID).WithError(err).Error("Failed get user by id")
+		h.log.WithError(err).Error("handler failed get user by id")
 
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
