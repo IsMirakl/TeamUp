@@ -8,7 +8,7 @@ CREATE TABLE users (
     deleted_at TIMESTAMPTZ,
 
     email TEXT NOT NULL UNIQUE,
-    email_verifed BOOLEAN NOT NULL DEFAULT FALSE,
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
 
     name VARCHAR(25) NOT NULL,
     avatar TEXT,

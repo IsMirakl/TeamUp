@@ -2,7 +2,7 @@
 INSERT INTO users (
     user_id,
     email,
-    email_verifed,
+    email_verified,
     name,
     avatar,
     role,
