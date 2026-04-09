@@ -3,16 +3,27 @@ package getbyemail
 import (
 	database "backend/internal/database/sqlc"
 	"context"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Service struct {
 	repository *Repository
+	log *logrus.Logger
 }
 
-func NewService(repository *Repository) *Service {
-	return &Service{repository: repository}
+func NewService(repository *Repository, log *logrus.Logger) *Service {
+	return &Service{repository: repository, log: log}
 }
 
 func (s *Service) GetByEmail(ctx context.Context, email string) (database.User, error) {
-	return s.repository.GetUserByEmail(ctx, email)
+	s.log.WithField("email", email).Info("getting user by email")
+	
+	user, err := s.repository.GetUserByEmail(ctx, email)
+	if err != nil {
+		s.log.WithError(err).Warn("failed to get user by email")
+		return database.User{}, err
+	}
+	
+	return user, nil
 }

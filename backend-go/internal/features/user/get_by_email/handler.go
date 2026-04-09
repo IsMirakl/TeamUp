@@ -3,6 +3,8 @@ package getbyemail
 import (
 	"backend/internal/features/user/dto"
 	"backend/internal/pkg/validation"
+	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,43 +13,52 @@ import (
 
 type Handler struct {
 	service *Service
-	log *logrus.Logger
+	log     *logrus.Logger
 }
 
 func NewHandler(service *Service, log *logrus.Logger) *Handler {
 	return &Handler{
 		service: service,
-		log: log,
+		log:     log,
 	}
 }
 
-
 func (h *Handler) Handle(c *gin.Context) {
-	var request dto.LoginUserDTO
-
-	h.log.WithField("email", request.Email).Info("Get by id request received")
-	
-	if err := validation.Validate.Var(request.Email, "required"); err != nil {
-
-		h.log.WithField("email", request.Email).WithError(err).Warn("failed to validate request")
+	email := c.Param("email")
+	if err := validation.Validate.Var(email, "required,email"); err != nil {
+		h.log.WithField("email", email).
+			WithError(err).
+			Warn("invalid email path param")
 
 		c.JSON(http.StatusBadRequest, gin.H{
-			"erro": err.Error(),
-		})
-		return
-	}
-
-	user, err := h.service.GetByEmail(c.Request.Context(), request.Email)
-	if err != nil {
-		h.log.WithField("email", request.Email).WithError(err).Error("Failed get user by email")
-	
-		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	response := dto.ToUserResponse(user)
-	c.JSON(http.StatusOK, response)
+	h.log.WithField("email", email).Info("getting user by email")
 
+	user, err := h.service.GetByEmail(c.Request.Context(), email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			h.log.WithField("email", email).Warn("user not found")
+
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "user not found",
+			})
+			return
+		}
+
+		h.log.WithField("email", email).
+			WithError(err).
+			Error("failed to get user by email")
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "internal server error",
+		})
+		return
+	}
+
+	response := dto.ToUserResponse(&user)
+	c.JSON(http.StatusOK, response)
 }

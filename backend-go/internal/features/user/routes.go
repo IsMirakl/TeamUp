@@ -13,9 +13,9 @@ func UserRouter(r *gin.RouterGroup, registerHandler *registeruser.Handler, login
 
 	users_auth := r.Group("/v1/auth")
 	users := r.Group("/v1")
-	
+
 	users_auth.POST("/register", registerHandler.Handle)
 	users_auth.POST("/login", loginHandler.Handle)
 	users.GET("/user/:userID", getUserById.Handle)
-	users.GET("/users/email/:email", getUserByEmail.Handle)
+	users.GET("/user/email/:email", getUserByEmail.Handle)
 }
