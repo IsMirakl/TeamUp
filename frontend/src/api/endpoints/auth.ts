@@ -2,8 +2,27 @@ import type {
   AuthResponse,
   LoginData,
   RegisterData,
-} from '../../types/dto/User';
+  User,
+} from '../../types/User';
 import { api } from '../axiosConfig';
+
+type UserApiResponse = {
+  user_id: string;
+  name: string;
+  email: string;
+  avatar?: string | null;
+  role: string;
+  subscriptionPlan: string;
+};
+
+const mapUserResponse = (data: UserApiResponse): User => ({
+  email: data.email,
+  role: data.role as unknown as User['role'],
+  name: data.name,
+  avatarUrl: data.avatar ?? undefined,
+  subscriptionPlan:
+    data.subscriptionPlan as unknown as User['subscriptionPlan'],
+});
 
 export const authAPI = {
   login: async (data: LoginData): Promise<AuthResponse> => {
@@ -16,6 +35,11 @@ export const authAPI = {
     const response = await api.post('/api/v1/auth/register', data);
     localStorage.setItem('accessToken', response.data.accessToken);
     return response.data;
+  },
+
+  getUserById: async (userId: string): Promise<User> => {
+    const response = await api.get(`/api/v1/user/${userId}`);
+    return mapUserResponse(response.data);
   },
 };
 
