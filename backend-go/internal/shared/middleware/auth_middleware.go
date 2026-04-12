@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,7 +46,22 @@ func AuthMiddleware(signingKey []byte, log *logrus.Logger) gin.HandlerFunc {
 			return
 		}
 
-		c.Set("userID", claims.UserID)
+		userID, err := uuid.Parse(claims.UserID)
+		if err != nil {
+			log.WithError(err).Error("failed to parse userID from token")
+
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "invalid token user id",
+			})
+			return
+		}
+
+		pgUserID := pgtype.UUID{
+			Bytes: userID,
+			Valid: true,
+		}
+
+		c.Set("userID", pgUserID)
 
 		c.Next()
 	}
