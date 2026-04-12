@@ -7,6 +7,7 @@ import (
 	"backend/internal/identity/application/dto"
 	"backend/internal/identity/domain/model"
 	auth "backend/internal/pkg/utils"
+	sharedErrors "backend/internal/shared/errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
@@ -36,7 +37,7 @@ func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (string,
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			s.log.Warn("user not found")
-			return "", nil
+			return "", sharedErrors.ErrInvalidCredentials
 		}
 
 		s.log.WithError(err).Error("failed to fetch user by email")
@@ -45,7 +46,7 @@ func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (string,
 
 	if !model.VerifyPassword(user.PasswordHash, request.Password) {
 		s.log.Warn("invalid password")
-		return "", nil
+		return "", sharedErrors.ErrInvalidCredentials
 	}
 
 	token, err := auth.CreateToken(user.UserID.String(), s.log)
