@@ -1,19 +1,35 @@
 package main
 
 import (
-	postroutes "backend/internal/features/post"
-	createpost "backend/internal/features/post/create_post"
-	getauthorpost "backend/internal/features/post/get_author_post"
-	getpostbyid "backend/internal/features/post/get_by_id"
-	updatepost "backend/internal/features/post/update_post"
-	userroutes "backend/internal/features/user"
-	getuserbyemail "backend/internal/features/user/get_by_email"
-	getuserbyid "backend/internal/features/user/get_by_id"
-	loginuser "backend/internal/features/user/login_user"
-	registeruser "backend/internal/features/user/register_user"
-	"backend/internal/pkg/config"
 	"time"
 
+	postcreateapp "backend/internal/content/application/command/create_post"
+	postupdateapp "backend/internal/content/application/command/update_post"
+	postgetauthorapp "backend/internal/content/application/query/get_author_post"
+	postgetbyidapp "backend/internal/content/application/query/get_by_id"
+	postcreateinfra "backend/internal/content/infrastructure/persistence/create_post"
+	postgetauthorinfra "backend/internal/content/infrastructure/persistence/get_author_post"
+	postgetbyidinfra "backend/internal/content/infrastructure/persistence/get_by_id"
+	postupdateinfra "backend/internal/content/infrastructure/persistence/update_post"
+	postroutes "backend/internal/content/interfaces/http"
+	createpost "backend/internal/content/interfaces/http/create_post"
+	getauthorpost "backend/internal/content/interfaces/http/get_author_post"
+	getpostbyid "backend/internal/content/interfaces/http/get_by_id"
+	updatepost "backend/internal/content/interfaces/http/update_post"
+	userloginapp "backend/internal/identity/application/command/login_user"
+	userregisterapp "backend/internal/identity/application/command/register_user"
+	usergetbyemailapp "backend/internal/identity/application/query/get_by_email"
+	usergetbyidapp "backend/internal/identity/application/query/get_by_id"
+	usergetbyemailinfra "backend/internal/identity/infrastructure/persistence/get_by_email"
+	usergetbyidinfra "backend/internal/identity/infrastructure/persistence/get_by_id"
+	userlogininfra "backend/internal/identity/infrastructure/persistence/login_user"
+	userregisterinfra "backend/internal/identity/infrastructure/persistence/register_user"
+	userroutes "backend/internal/identity/interfaces/http"
+	getuserbyemail "backend/internal/identity/interfaces/http/get_by_email"
+	getuserbyid "backend/internal/identity/interfaces/http/get_by_id"
+	loginuser "backend/internal/identity/interfaces/http/login_user"
+	registeruser "backend/internal/identity/interfaces/http/register_user"
+	"backend/internal/pkg/config"
 	"backend/internal/pkg/logger"
 
 	"github.com/gin-contrib/cors"
@@ -30,7 +46,6 @@ func main() {
 	defer db.Pool.Close()
 	r := gin.Default()
 
-
 	log.Info("Server started")
 
 	r.Use(cors.New(cors.Config{
@@ -43,37 +58,36 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	registerRepo := registeruser.NewUserRepository(db.Queries, db.Pool)
-	registerService := registeruser.NewUserService(registerRepo, log)
+	registerRepo := userregisterinfra.NewUserRepository(db.Queries, db.Pool)
+	registerService := userregisterapp.NewUserService(registerRepo, log)
 	registerHandler := registeruser.NewUserHandler(registerService, log)
 
-
-	getUserByIdRepo := getuserbyid.NewRepository(db.Queries)
-	getUserByIdService := getuserbyid.NewService(getUserByIdRepo, log)
+	getUserByIdRepo := usergetbyidinfra.NewRepository(db.Queries)
+	getUserByIdService := usergetbyidapp.NewService(getUserByIdRepo, log)
 	getUserByIdHandler := getuserbyid.NewHandler(getUserByIdService, log)
 
-	getUserByEmailRepo := getuserbyemail.NewRepository(db.Queries)
-	getUserByEmailService := getuserbyemail.NewService(getUserByEmailRepo, log)
+	getUserByEmailRepo := usergetbyemailinfra.NewRepository(db.Queries)
+	getUserByEmailService := usergetbyemailapp.NewService(getUserByEmailRepo, log)
 	getUserByEmailHandler := getuserbyemail.NewHandler(getUserByEmailService, log)
 
-	loginRepo := loginuser.NewRepository(db.Queries)
-	loginService := loginuser.NewUserService(loginRepo, log)
+	loginRepo := userlogininfra.NewRepository(db.Queries)
+	loginService := userloginapp.NewUserService(loginRepo, log)
 	loginHandler := loginuser.NewUserHandler(loginService, log)
 
-	createPostRepo := createpost.NewRepository(db.Queries, db.Pool)
-	createPostService := createpost.NewService(createPostRepo, log)
+	createPostRepo := postcreateinfra.NewRepository(db.Queries, db.Pool)
+	createPostService := postcreateapp.NewService(createPostRepo, log)
 	createPostHandler := createpost.NewHandler(createPostService, log)
 
-	updatePostRepo := updatepost.NewRepository(db.Queries, db.Pool)
-	updatePostService := updatepost.NewService(updatePostRepo, log)
+	updatePostRepo := postupdateinfra.NewRepository(db.Queries, db.Pool)
+	updatePostService := postupdateapp.NewService(updatePostRepo, log)
 	updatePostHandler := updatepost.NewHandler(updatePostService)
 
-	getPostByIdRepo := getpostbyid.NewRepository(db.Queries)
-	getPostByIdService := getpostbyid.NewService(getPostByIdRepo, log)
+	getPostByIdRepo := postgetbyidinfra.NewRepository(db.Queries)
+	getPostByIdService := postgetbyidapp.NewService(getPostByIdRepo, log)
 	getPostByIdHandler := getpostbyid.NewHandler(getPostByIdService, log)
 
-	getAuthorPostRepo := getauthorpost.NewRepository(db.Queries)
-	getAuthorPostService := getauthorpost.NewService(getAuthorPostRepo, log)
+	getAuthorPostRepo := postgetauthorinfra.NewRepository(db.Queries)
+	getAuthorPostService := postgetauthorapp.NewService(getAuthorPostRepo, log)
 	getAuthorPostHandler := getauthorpost.NewHandler(getAuthorPostService, log)
 
 	api := r.Group("/api")
