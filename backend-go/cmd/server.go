@@ -91,7 +91,7 @@ func main() {
 	getAuthorPostHandler := getauthorpost.NewHandler(getAuthorPostService, log)
 
 	api := r.Group("/api")
-	userroutes.UserRouter(api, registerHandler, loginHandler, getUserByIdHandler, getUserByEmailHandler)
+	userroutes.UserRouter(api, registerHandler, loginHandler, getUserByIdHandler, getUserByEmailHandler, getMyProfileHandler)
 	postroutes.PostRouter(
 		api,
 		createPostHandler,
