@@ -1,12 +1,11 @@
 package getmyprofile
 
 import (
+	"backend/internal/identity/application/dto"
 	appProfile "backend/internal/identity/application/query/get_my_profile"
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
 )
@@ -26,7 +25,7 @@ func NewProfileHandler(service *appProfile.Service, log *logrus.Logger) *Handler
 func (h *Handler) Handle(c *gin.Context) {
 	h.log.Info("GET /profile/me")
 
-	rawUserID, exists := c.Get("id")
+	rawUserID, exists := c.Get("userID")
 
 	if !exists {
 		h.log.Error("User ID not found in context")
@@ -34,9 +33,9 @@ func (h *Handler) Handle(c *gin.Context) {
 		return
 	}
 
-	userID, err := parseUserID(rawUserID)
-	if err != nil {
-		h.log.WithError(err).Error("Failed to parse userID")
+	userID, ok := rawUserID.(pgtype.UUID)
+	if !ok {
+		h.log.Error("Failed to cast userID to UUID")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -47,22 +46,6 @@ func (h *Handler) Handle(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get profile"})
 		return
 	}
-	c.JSON(http.StatusOK, profile)
-}
-
-func parseUserID(rawUserID interface{}) (pgtype.UUID, error) {
-	switch v := rawUserID.(type) {
-	case pgtype.UUID:
-		return v, nil
-	case uuid.UUID:
-		return pgtype.UUID{Bytes: v, Valid: true}, nil
-	case string:
-		parsed, err := uuid.Parse(v)
-		if err != nil {
-			return pgtype.UUID{}, err
-		}
-		return pgtype.UUID{Bytes: parsed, Valid: true}, nil
-	default:
-		return pgtype.UUID{}, errors.New("unsupported userID type")
-	}
+	response := dto.ToProfileResponse(profile)
+	c.JSON(http.StatusOK, response)
 }

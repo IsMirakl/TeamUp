@@ -20,15 +20,19 @@ import (
 	userregisterapp "backend/internal/identity/application/command/register_user"
 	usergetbyemailapp "backend/internal/identity/application/query/get_by_email"
 	usergetbyidapp "backend/internal/identity/application/query/get_by_id"
+	getmyprofileapp "backend/internal/identity/application/query/get_my_profile"
 	usergetbyemailinfra "backend/internal/identity/infrastructure/persistence/get_by_email"
 	usergetbyidinfra "backend/internal/identity/infrastructure/persistence/get_by_id"
+	getmyprofileinfra "backend/internal/identity/infrastructure/persistence/get_my_profile"
 	userlogininfra "backend/internal/identity/infrastructure/persistence/login_user"
 	userregisterinfra "backend/internal/identity/infrastructure/persistence/register_user"
 	userroutes "backend/internal/identity/interfaces/http"
 	getuserbyemail "backend/internal/identity/interfaces/http/get_by_email"
 	getuserbyid "backend/internal/identity/interfaces/http/get_by_id"
+	getmyprofile "backend/internal/identity/interfaces/http/get_my_profile"
 	loginuser "backend/internal/identity/interfaces/http/login_user"
 	registeruser "backend/internal/identity/interfaces/http/register_user"
+
 	"backend/internal/pkg/config"
 	"backend/internal/pkg/logger"
 
@@ -90,8 +94,13 @@ func main() {
 	getAuthorPostService := postgetauthorapp.NewService(getAuthorPostRepo, log)
 	getAuthorPostHandler := getauthorpost.NewHandler(getAuthorPostService, log)
 
+	getProfileMeRepo := getmyprofileinfra.NewRepository(db.Queries, log)
+	getProfileMeService := getmyprofileapp.NewPostService(getProfileMeRepo, log)
+	getMyProfileHandler := getmyprofile.NewProfileHandler(getProfileMeService, log)
+
 	api := r.Group("/api")
-	userroutes.UserRouter(api, registerHandler, loginHandler, getUserByIdHandler, getUserByEmailHandler, getMyProfileHandler)
+	userRouterParams := userroutes.NewRouterParams(signingKey, log)
+	userroutes.UserRouter(api, registerHandler, loginHandler, getUserByIdHandler, getUserByEmailHandler, userRouterParams, getMyProfileHandler)
 	postroutes.PostRouter(
 		api,
 		createPostHandler,

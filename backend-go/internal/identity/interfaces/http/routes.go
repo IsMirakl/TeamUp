@@ -15,7 +15,14 @@ import (
 
 type RouterParams struct {
 	signingKey []byte
-	log *logrus.Logger
+	log        *logrus.Logger
+}
+
+func NewRouterParams(signingKey []byte, log *logrus.Logger) RouterParams {
+	return RouterParams{
+		signingKey: signingKey,
+		log:        log,
+	}
 }
 
 func UserRouter(r *gin.RouterGroup, registerHandler *registeruser.Handler, loginHandler *loginuser.Handler, getUserById *getUserById.Handler, getUserByEmail *getUserByEmail.Handler, params RouterParams, getMyProfile *getMyProfile.Handler) {
