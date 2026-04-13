@@ -158,13 +158,22 @@ type Post struct {
 	AuthorID    string
 }
 
+type Session struct {
+	ID           pgtype.UUID
+	UserID       pgtype.UUID
+	RefreshToken string
+	ExpiresAt    pgtype.Timestamptz
+	CreatedAt    pgtype.Timestamptz
+	RevokedAt    pgtype.Timestamptz
+}
+
 type User struct {
 	UserID           pgtype.UUID
 	CreatedAt        pgtype.Timestamptz
 	UpdatedAt        pgtype.Timestamptz
 	DeletedAt        pgtype.Timestamptz
 	Email            string
-	EmailVerified     bool
+	EmailVerified    bool
 	Name             string
 	Avatar           pgtype.Text
 	Role             Roles
