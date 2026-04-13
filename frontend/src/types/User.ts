@@ -24,6 +24,18 @@ export interface AuthResponse {
   accessToken: string;
 }
 
+export interface ProfileData {
+  name: string;
+  email: string;
+  avatar?: string;
+  role: UserRoles;
+  subscriptionPlan: SubscriptionPlan;
+}
+
+export interface ProfileResponse  {
+  profile: ProfileData;
+};
+
 enum UserRoles {
   USER,
   ADMIN,
