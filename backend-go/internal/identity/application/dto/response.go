@@ -11,4 +11,12 @@ type ResponseUserDTO struct {
 
 type LoginResponse struct {
 	AccessToken string `json:"accessToken"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+
+type RegisterResponse struct {
+	User         *ResponseUserDTO `json:"user"`
+	AccessToken  string            `json:"access_token"`
+	RefreshToken string            `json:"refresh_token"`
 }
