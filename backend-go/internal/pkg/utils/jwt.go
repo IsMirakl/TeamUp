@@ -72,3 +72,53 @@ func ValidateToken(tokenString string, signingKey []byte) (*Claims, error) {
 	}
 	return claims, nil
 }
+
+func GenerateRefreshToken(userID string, log *logrus.Logger) (string, error) {
+	conf := config.New(log)
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": userID,
+		"exp": time.Now().Add(time.Hour * 24 * 90).Unix(),
+	})
+
+	signingRefreshKey := []byte(conf.SECRET_KEY.REFRESH_SECRET)
+
+	refreshToken, err := token.SignedString(signingRefreshKey)
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"user_id": userID,
+		}).WithError(err).Error("Failed to sign refresh token")
+
+		return "", fmt.Errorf("sign refresh token: %w", err)
+	}
+
+	log.WithFields(logrus.Fields{
+		"user_id": userID,
+	}).Info("refresh token generated")
+
+	return refreshToken, nil
+}
+
+
+func ValidateRefreshToken(refreshToken string, signingRefreshKey []byte) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(
+		refreshToken,
+		&Claims{},
+		func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method")
+			}
+			return signingRefreshKey, nil
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*Claims)
+	if !ok {
+		return nil, fmt.Errorf("invalid token")
+	}
+	return claims, nil
+}

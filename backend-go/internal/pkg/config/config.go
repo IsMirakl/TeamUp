@@ -9,6 +9,7 @@ import (
 
 type EnvConfig struct {
 	JWT_SECRET string
+	REFRESH_SECRET string
 }
 
 
@@ -21,6 +22,7 @@ func New(log *logrus.Logger) *Config{
 	return &Config{
 		SECRET_KEY: EnvConfig{
 			JWT_SECRET: getEnv("SECRET_KEY"),
+			REFRESH_SECRET: getEnv("REFRESH_TOKEN_KEY"),
 		},
 		log: log,
 	}
