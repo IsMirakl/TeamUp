@@ -1,0 +1,4 @@
+ALTER TABLE sessions
+ADD COLUMN user_agent TEXT NOT NULL,
+ADD COLUMN client_ip TEXT NOT NULL,
+ADD COLUMN is_blocked BOOLEAN NOT NULL DEFAULT false;

@@ -165,6 +165,9 @@ type Session struct {
 	ExpiresAt    pgtype.Timestamptz
 	CreatedAt    pgtype.Timestamptz
 	RevokedAt    pgtype.Timestamptz
+	UserAgent    string
+	ClientIp     string
+	IsBlocked    bool
 }
 
 type User struct {
