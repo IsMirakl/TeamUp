@@ -56,6 +56,6 @@ func (h *Handler) Handle(c *gin.Context) {
 		return
 	}
 
-	response := dto.LoginResponse{AccessToken: token}
+	response := dto.LoginResponse{AccessToken: token.AccessToken, RefreshToken: token.RefreshToken}
 	c.JSON(http.StatusOK, response)
 }

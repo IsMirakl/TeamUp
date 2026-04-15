@@ -26,10 +26,7 @@ type User struct {
 
 type Account struct {
 	UserID string
-
 	PasswordHash  string
-	Refresh_token *string
-
 	Provider string
 }
 

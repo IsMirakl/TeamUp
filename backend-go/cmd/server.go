@@ -16,11 +16,13 @@ import (
 	getauthorpost "backend/internal/content/interfaces/http/get_author_post"
 	getpostbyid "backend/internal/content/interfaces/http/get_by_id"
 	updatepost "backend/internal/content/interfaces/http/update_post"
+	sessionapp "backend/internal/identity/application/command/create_session"
 	userloginapp "backend/internal/identity/application/command/login_user"
 	userregisterapp "backend/internal/identity/application/command/register_user"
 	usergetbyemailapp "backend/internal/identity/application/query/get_by_email"
 	usergetbyidapp "backend/internal/identity/application/query/get_by_id"
 	getmyprofileapp "backend/internal/identity/application/query/get_my_profile"
+	sessioninfra "backend/internal/identity/infrastructure/persistence/create_session"
 	usergetbyemailinfra "backend/internal/identity/infrastructure/persistence/get_by_email"
 	usergetbyidinfra "backend/internal/identity/infrastructure/persistence/get_by_id"
 	getmyprofileinfra "backend/internal/identity/infrastructure/persistence/get_my_profile"
@@ -62,10 +64,6 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	registerRepo := userregisterinfra.NewUserRepository(db.Queries, db.Pool)
-	registerService := userregisterapp.NewUserService(registerRepo, log)
-	registerHandler := registeruser.NewUserHandler(registerService, log)
-
 	getUserByIdRepo := usergetbyidinfra.NewRepository(db.Queries)
 	getUserByIdService := usergetbyidapp.NewService(getUserByIdRepo, log)
 	getUserByIdHandler := getuserbyid.NewHandler(getUserByIdService, log)
@@ -73,9 +71,16 @@ func main() {
 	getUserByEmailRepo := usergetbyemailinfra.NewRepository(db.Queries)
 	getUserByEmailService := usergetbyemailapp.NewService(getUserByEmailRepo, log)
 	getUserByEmailHandler := getuserbyemail.NewHandler(getUserByEmailService, log)
+	
+	sessionRepo := sessioninfra.NewRepository(db.Queries, log)
+	sessionService := sessionapp.NewSesssionService(sessionRepo, log)
+
+	registerRepo := userregisterinfra.NewUserRepository(db.Queries, db.Pool)
+	registerService := userregisterapp.NewUserService(registerRepo, sessionService, log)
+	registerHandler := registeruser.NewUserHandler(registerService, log)
 
 	loginRepo := userlogininfra.NewRepository(db.Queries)
-	loginService := userloginapp.NewUserService(loginRepo, log)
+	loginService := userloginapp.NewUserService(loginRepo, sessionService, log)
 	loginHandler := loginuser.NewUserHandler(loginService, log)
 
 	createPostRepo := postcreateinfra.NewRepository(db.Queries, db.Pool)

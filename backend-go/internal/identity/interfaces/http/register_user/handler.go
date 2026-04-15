@@ -22,8 +22,8 @@ func NewUserHandler(service *appregister.Service, log *logrus.Logger) *Handler {
 		log:     log,
 	}
 }
-func (h *Handler) Handle(c *gin.Context) {
 
+func (h *Handler) Handle(c *gin.Context) {
 	var request dto.CreateUserDTO
 
 	h.log.WithFields(logrus.Fields{
@@ -44,9 +44,7 @@ func (h *Handler) Handle(c *gin.Context) {
 	}
 
 	if err := validation.Validate.Struct(request); err != nil {
-		h.log.WithFields(logrus.Fields{
-			"email": request.Email,
-		}).Warn("register user validation failed")
+		h.log.WithField("email", request.Email).Warn("register user validation failed")
 
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -54,12 +52,12 @@ func (h *Handler) Handle(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Create(c.Request.Context(), &request)
+	request.UserAgent = c.Request.UserAgent()
+	request.ClientIP = c.ClientIP()
 
+	response, err := h.service.Create(c.Request.Context(), &request)
 	if err != nil {
-		h.log.WithFields(logrus.Fields{
-			"email": request.Email,
-		}).WithError(err).Error("failed to create user")
+		h.log.WithField("email", request.Email).WithError(err).Error("failed to create user")
 
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -67,6 +65,5 @@ func (h *Handler) Handle(c *gin.Context) {
 		return
 	}
 
-	response := dto.ToUserResponse(user)
 	c.JSON(http.StatusCreated, response)
 }
