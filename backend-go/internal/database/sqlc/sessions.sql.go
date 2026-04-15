@@ -11,38 +11,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const creatSession = `-- name: CreatSession :one
+const createSession = `-- name: CreateSession :one
 INSERT INTO sessions (
-    id,
     user_id,
     refresh_token,
     user_agent,
     client_ip,
     is_blocked,
-    expires_at,
-    created_at,
-    revoked_at
+    expires_at
 ) VALUES (
-    $1, $2, $3, $4, $5, false, $6, NOW(), NOW()
-) RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
+    $1, $2, $3, $4, $5, $6
+)
+RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
 `
 
-type CreatSessionParams struct {
-	ID           pgtype.UUID
+type CreateSessionParams struct {
 	UserID       pgtype.UUID
 	RefreshToken string
 	UserAgent    string
 	ClientIp     string
+	IsBlocked    bool
 	ExpiresAt    pgtype.Timestamptz
 }
 
-func (q *Queries) CreatSession(ctx context.Context, arg CreatSessionParams) (Session, error) {
-	row := q.db.QueryRow(ctx, creatSession,
-		arg.ID,
+func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
+	row := q.db.QueryRow(ctx, createSession,
 		arg.UserID,
 		arg.RefreshToken,
 		arg.UserAgent,
 		arg.ClientIp,
+		arg.IsBlocked,
 		arg.ExpiresAt,
 	)
 	var i Session

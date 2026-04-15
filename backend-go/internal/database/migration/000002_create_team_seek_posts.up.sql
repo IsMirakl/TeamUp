@@ -7,7 +7,7 @@ CREATE TABLE posts (
     title VARCHAR(50) NOT NULL,
     description VARCHAR(750) NOT NULL,
     tags TEXT[],
-    author_id TEXT NOT NULL,
+    author_id UUID NOT NULL,
 
     CONSTRAINT min_length_description CHECK (char_length(description) >= 150), 
     CONSTRAINT fk_post_author
