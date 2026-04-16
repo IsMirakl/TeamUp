@@ -29,6 +29,11 @@ func NewService(repository Repository, log *logrus.Logger) *Service {
 
 func (s *Service) Create(ctx context.Context, dto *dto.CreatePostDTO, userID string) (*database.Post, error) {
 	ID := uuid.New()
+	authorUUID, err := uuid.Parse(userID)
+	if err != nil {
+		s.log.WithField("user_id", userID).WithError(err).Error("invalid user_id")
+		return nil, err
+	}
 
 	s.log.WithField("title_post", dto.Title).Info("Creating post")
 
@@ -37,7 +42,7 @@ func (s *Service) Create(ctx context.Context, dto *dto.CreatePostDTO, userID str
 		Title:       dto.Title,
 		Description: dto.Description,
 		Tags:        dto.Tags,
-		AuthorID:    userID,
+		AuthorID:    pgtype.UUID{Bytes: authorUUID, Valid: true},
 	})
 	if err != nil {
 		s.log.WithField("post_ID", post.ID.String()).WithError(err).Error("Failed create post")

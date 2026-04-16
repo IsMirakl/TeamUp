@@ -3,6 +3,9 @@ package getauthorpost
 import (
 	database "backend/internal/database/sqlc"
 	"context"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Repository struct {
@@ -14,5 +17,9 @@ func NewRepository(q *database.Queries) *Repository {
 }
 
 func (r *Repository) GetAuthorPost(ctx context.Context, authorId string) (database.Post, error) {
-	return r.q.GetAuthorPost(ctx, authorId)
+	authorUUID, err := uuid.Parse(authorId)
+	if err != nil {
+		return database.Post{}, err
+	}
+	return r.q.GetAuthorPost(ctx, pgtype.UUID{Bytes: authorUUID, Valid: true})
 }

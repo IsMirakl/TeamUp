@@ -155,7 +155,7 @@ type Post struct {
 	Title       string
 	Description string
 	Tags        []string
-	AuthorID    string
+	AuthorID    pgtype.UUID
 }
 
 type Session struct {

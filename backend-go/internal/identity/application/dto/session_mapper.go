@@ -12,6 +12,7 @@ func ToSessionMapper(session *database.Session) *SessionResponse {
 	}
 
 	return &SessionResponse{
+		ID:           session.ID.String(),
 		UserID:       session.UserID.String(),
 		RefreshToken: session.RefreshToken,
 		UserAgent:    session.UserAgent,

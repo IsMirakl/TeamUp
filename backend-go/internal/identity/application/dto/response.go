@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 type ResponseUserDTO struct {
 	UserID           string  `json:"user_id"`
 	Name             string  `json:"name"`
@@ -10,8 +12,11 @@ type ResponseUserDTO struct {
 }
 
 type LoginResponse struct {
-	AccessToken string `json:"accessToken"`
-	RefreshToken string `json:"refresh_token"`
+	SessionId  string `json:"session_id"`
+	AccessToken string    `json:"accessToken"`
+	RefreshToken string   `json:"refresh_token"`
+	IsBlocked    bool      `json:"is_blocked"`
+	ExpiresAt    time.Time `json:"expires_at"`
 }
 
 

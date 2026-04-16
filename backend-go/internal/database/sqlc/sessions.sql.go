@@ -57,3 +57,57 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 	)
 	return i, err
 }
+
+const getSessionByRefreshToken = `-- name: GetSessionByRefreshToken :one
+SELECT id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
+FROM sessions
+WHERE refresh_token = $1 AND revoked_at IS NULL
+`
+
+func (q *Queries) GetSessionByRefreshToken(ctx context.Context, refreshToken string) (Session, error) {
+	row := q.db.QueryRow(ctx, getSessionByRefreshToken, refreshToken)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshToken,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.RevokedAt,
+		&i.UserAgent,
+		&i.ClientIp,
+		&i.IsBlocked,
+	)
+	return i, err
+}
+
+const updateSessionRefreshToken = `-- name: UpdateSessionRefreshToken :one
+UPDATE sessions
+SET refresh_token = $2,
+    expires_at = $3
+WHERE id = $1 AND revoked_at IS NULL
+RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
+`
+
+type UpdateSessionRefreshTokenParams struct {
+	ID           pgtype.UUID
+	RefreshToken string
+	ExpiresAt    pgtype.Timestamptz
+}
+
+func (q *Queries) UpdateSessionRefreshToken(ctx context.Context, arg UpdateSessionRefreshTokenParams) (Session, error) {
+	row := q.db.QueryRow(ctx, updateSessionRefreshToken, arg.ID, arg.RefreshToken, arg.ExpiresAt)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshToken,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.RevokedAt,
+		&i.UserAgent,
+		&i.ClientIp,
+		&i.IsBlocked,
+	)
+	return i, err
+}

@@ -10,6 +10,7 @@ import (
 	auth "backend/internal/pkg/utils"
 	sharedErrors "backend/internal/shared/errors"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -68,13 +69,14 @@ func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (*dto.Lo
 		return nil, err
 	}
 
-	_, err = s.sessionService.CreateSession(ctx, &dto.CreateSessionDTO{
-	UserID:       user.UserID.String(),
-	RefreshToken: refreshToken,
-	UserAgent:    request.UserAgent,
-	ClientIp:     request.ClientIP,
-	IsBlocked:    false,
-	ExpiresAt:    time.Now().Add(90 * 24 * time.Hour),
+	session, err := s.sessionService.CreateSession(ctx, &dto.CreateSessionDTO{
+		ID:           uuid.New().String(),
+		UserID:       user.UserID.String(),
+		RefreshToken: refreshToken,
+		UserAgent:    request.UserAgent,
+		ClientIp:     request.ClientIP,
+		IsBlocked:    false,
+		ExpiresAt:    time.Now().Add(90 * 24 * time.Hour),
 })
 	if err != nil {
 		s.log.WithError(err).Error("failed to create session")
@@ -84,6 +86,7 @@ func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (*dto.Lo
 	s.log.WithField("email", user.Email).Info("login successful")
 
 	return &dto.LoginResponse{
+		SessionId:   session.ID,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
