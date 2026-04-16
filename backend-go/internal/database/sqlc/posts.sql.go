@@ -30,7 +30,7 @@ type CreatePostParams struct {
 	Title       string
 	Description string
 	Tags        []string
-	AuthorID    string
+	AuthorID    pgtype.UUID
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
@@ -61,7 +61,7 @@ WHERE author_id = $1 AND deleted_at IS NULL
 LIMIT 1
 `
 
-func (q *Queries) GetAuthorPost(ctx context.Context, authorID string) (Post, error) {
+func (q *Queries) GetAuthorPost(ctx context.Context, authorID pgtype.UUID) (Post, error) {
 	row := q.db.QueryRow(ctx, getAuthorPost, authorID)
 	var i Post
 	err := row.Scan(
