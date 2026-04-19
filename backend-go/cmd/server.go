@@ -48,7 +48,11 @@ import (
 func main() {
 
 	log := logger.NewLogger()
-	cfg := config.New(log)
+	cfg, err := config.New(log)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	signingKey := []byte(cfg.SECRET_KEY.JWT_SECRET)
 
 	db := config.SetupDB()

@@ -1,38 +1,46 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
 )
 
 type EnvConfig struct {
-	JWT_SECRET string
+	JWT_SECRET     string
 	REFRESH_SECRET string
 }
 
-
 type Config struct {
 	SECRET_KEY EnvConfig
-	log *logrus.Logger
+	log        *logrus.Logger
 }
 
-func New(log *logrus.Logger) *Config{
+func New(log *logrus.Logger) (*Config, error) {
+	jwtSecret, err := getEnv("SECRET_KEY")
+	if err != nil {
+		return nil, err
+	}
+
+	refreshSecret, err := getEnv("REFRESH_TOKEN_KEY")
+	if err != nil {
+		return nil, err
+	}
+
 	return &Config{
 		SECRET_KEY: EnvConfig{
-			JWT_SECRET: getEnv("SECRET_KEY"),
-			REFRESH_SECRET: getEnv("REFRESH_TOKEN_KEY"),
+			JWT_SECRET:     jwtSecret,
+			REFRESH_SECRET: refreshSecret,
 		},
 		log: log,
-	}
+	}, nil
 }
 
-
-func getEnv(key string) string {
-	exists, ok := os.LookupEnv(key)
+func getEnv(key string) (string, error) {
+	value, ok := os.LookupEnv(key)
 	if !ok {
-		log.Fatal("Environment variable not set")
+		return "", fmt.Errorf("environment variable %s is not set", key)
 	}
-	return exists
+	return value, nil
 }

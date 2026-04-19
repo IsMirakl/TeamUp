@@ -31,7 +31,12 @@ func NewSessionService(repository Repository, log *logrus.Logger) *Service {
 }
 
 func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (*dto.LoginResponse, error) {
-	conf := config.New(s.log)
+	conf, err := config.New(s.log)
+	if err != nil {
+		s.log.WithError(err).Error("Failed to create config")
+		return nil, errors.ErrUnauthorized
+	}
+
 	signingRefreshKey := []byte(conf.SECRET_KEY.REFRESH_SECRET)
 
 	claims, err := auth.ValidateRefreshToken(refreshToken, signingRefreshKey)

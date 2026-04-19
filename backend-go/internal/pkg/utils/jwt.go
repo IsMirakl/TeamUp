@@ -19,12 +19,15 @@ type Claims struct {
 
 func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("No .env file found")
+		log.Println("No .env file found")
 	}
 }
 
 func CreateToken(userID string, log *logrus.Logger) (string, error) {
-	conf := config.New(log)
+	conf, err := config.New(log)
+	if err != nil {
+		return "", fmt.Errorf("create token: %w", err)
+	}
 
 	signingKey := []byte(conf.SECRET_KEY.JWT_SECRET)
 
@@ -74,11 +77,14 @@ func ValidateToken(tokenString string, signingKey []byte) (*Claims, error) {
 }
 
 func GenerateRefreshToken(userID string, log *logrus.Logger) (string, error) {
-	conf := config.New(log)
+	conf, err := config.New(log)
+	if err != nil {
+		return "", fmt.Errorf("create refresh token: %w", err)
+	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
-		"exp": time.Now().Add(time.Hour * 24 * 90).Unix(),
+		"exp":     time.Now().Add(time.Hour * 24 * 90).Unix(),
 	})
 
 	signingRefreshKey := []byte(conf.SECRET_KEY.REFRESH_SECRET)
@@ -98,7 +104,6 @@ func GenerateRefreshToken(userID string, log *logrus.Logger) (string, error) {
 
 	return refreshToken, nil
 }
-
 
 func ValidateRefreshToken(refreshToken string, signingRefreshKey []byte) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(
