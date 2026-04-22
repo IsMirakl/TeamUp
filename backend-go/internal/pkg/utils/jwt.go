@@ -46,7 +46,7 @@ func (s *tokenService) GenerateAccessToken(userID string) (string, error) {
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(72 * time.Hour)),
-			Issuer:    "TeamUP",
+			Issuer:    s.issuer,
 		},
 	}
 
@@ -113,7 +113,7 @@ func validateToken(tokenString string, signingKey []byte) (*Claims, error) {
 	}
 
 	claims, ok := token.Claims.(*Claims)
-	if !ok || token.Valid {
+	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid token")
 
 	}
