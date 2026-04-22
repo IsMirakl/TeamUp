@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,6 +19,11 @@ type Config struct {
 }
 
 func New(log *logrus.Logger) (*Config, error) {
+	// Load a local .env file when present (dev convenience).
+	// Ignore errors so production relies on real environment variables.
+	_ = godotenv.Load()
+	_ = godotenv.Load("cmd/.env")
+
 	jwtSecret, err := getEnv("SECRET_KEY")
 	if err != nil {
 		return nil, err

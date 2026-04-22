@@ -5,11 +5,24 @@ import (
 	getauthorpost "backend/internal/content/interfaces/http/get_author_post"
 	getbyid "backend/internal/content/interfaces/http/get_by_id"
 	updatepost "backend/internal/content/interfaces/http/update_post"
-	sharedmiddleware "backend/internal/shared/middleware"
+	auth "backend/internal/pkg/utils"
+	"backend/internal/shared/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
+
+type RouterParams struct {
+	tokenService auth.TokenService
+	log          *logrus.Logger
+}
+
+func NewRouterParams(tokenService auth.TokenService, log *logrus.Logger) RouterParams {
+	return RouterParams{
+		tokenService: tokenService,
+		log:          log,
+	}
+}
 
 func PostRouter(
 	r *gin.RouterGroup,
@@ -17,7 +30,7 @@ func PostRouter(
 	updateHandler *updatepost.Handler,
 	getByIdHandler *getbyid.Handler,
 	getAuthorHandler *getauthorpost.Handler,
-	signingKey []byte,
+	params RouterParams,
 	log *logrus.Logger,
 ) {
 	posts := r.Group("/v1/posts")
@@ -26,7 +39,7 @@ func PostRouter(
 	posts.GET("/post/author/:authorId", getAuthorHandler.Handle)
 
 	protected := posts.Group("/")
-	protected.Use(sharedmiddleware.AuthMiddleware(signingKey, log))
+	protected.Use(middleware.AuthMiddleware(params.tokenService, params.log))
 
 	protected.POST("/post", createHandler.Handle)
 	protected.PUT("/post/:id", updateHandler.Handle)

@@ -14,7 +14,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
 )
-	
+
 type Repository interface {
 	GetUserWithPasswordByEmail(ctx context.Context, email string) (database.GetUserWithPasswordByEmailRow, error)
 }
@@ -24,17 +24,19 @@ type SessionService interface {
 }
 
 type Service struct {
-	repository    Repository
-	log           *logrus.Logger
+	repository     Repository
+	log            *logrus.Logger
 	sessionService SessionService
+	tokenService   auth.TokenService
 }
 
 func NewUserService(
-	repository Repository, sessionService SessionService, log *logrus.Logger) *Service {
+	repository Repository, sessionService SessionService, log *logrus.Logger, tokenService auth.TokenService) *Service {
 	return &Service{
-		repository:    repository,
-		log:           log,
+		repository:     repository,
+		log:            log,
 		sessionService: sessionService,
+		tokenService:   tokenService,
 	}
 }
 
@@ -57,13 +59,13 @@ func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (*dto.Lo
 		return nil, sharedErrors.ErrInvalidCredentials
 	}
 
-	accessToken, err := auth.CreateToken(user.UserID.String(), s.log)
+	accessToken, err := s.tokenService.GenerateAccessToken(user.UserID.String())
 	if err != nil {
 		s.log.WithError(err).Error("failed to create access token")
 		return nil, err
 	}
 
-	refreshToken, err := auth.GenerateRefreshToken(user.UserID.String(), s.log)
+	refreshToken, err := s.tokenService.GenerateRefreshToken(user.UserID.String())
 	if err != nil {
 		s.log.WithError(err).Error("failed to create refresh token")
 		return nil, err
@@ -77,7 +79,7 @@ func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (*dto.Lo
 		ClientIp:     request.ClientIP,
 		IsBlocked:    false,
 		ExpiresAt:    time.Now().Add(90 * 24 * time.Hour),
-})
+	})
 	if err != nil {
 		s.log.WithError(err).Error("failed to create session")
 		return nil, err
@@ -86,7 +88,7 @@ func (s *Service) Login(ctx context.Context, request *dto.LoginUserDTO) (*dto.Lo
 	s.log.WithField("email", user.Email).Info("login successful")
 
 	return &dto.LoginResponse{
-		SessionId:   session.ID,
+		SessionId:    session.ID,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil

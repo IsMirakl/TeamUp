@@ -7,6 +7,7 @@ import (
 	loginuser "backend/internal/identity/interfaces/http/login_user"
 	refreshsession "backend/internal/identity/interfaces/http/refresh_session"
 	registeruser "backend/internal/identity/interfaces/http/register_user"
+	auth "backend/internal/pkg/utils"
 
 	"backend/internal/shared/middleware"
 
@@ -15,13 +16,13 @@ import (
 )
 
 type RouterParams struct {
-	signingKey []byte
+	tokenService auth.TokenService
 	log        *logrus.Logger
 }
 
-func NewRouterParams(signingKey []byte, log *logrus.Logger) RouterParams {
+func NewRouterParams(tokenService auth.TokenService, log *logrus.Logger) RouterParams {
 	return RouterParams{
-		signingKey: signingKey,
+		tokenService: tokenService,
 		log:        log,
 	}
 }
@@ -47,6 +48,6 @@ func UserRouter(
 	users.GET("/user/email/:email", getUserByEmail.Handle)
 
 	profile := r.Group("/v1/profile")
-	profile.Use(middleware.AuthMiddleware(params.signingKey, params.log))
+	profile.Use(middleware.AuthMiddleware(params.tokenService, params.log))
 	profile.GET("/me", getMyProfile.Handle)
 }

@@ -40,6 +40,7 @@ import (
 
 	"backend/internal/pkg/config"
 	"backend/internal/pkg/logger"
+	auth "backend/internal/pkg/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -53,7 +54,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	signingKey := []byte(cfg.SECRET_KEY.JWT_SECRET)
+	tokenService := auth.NewTokenService(
+		cfg.SECRET_KEY.JWT_SECRET,
+		cfg.SECRET_KEY.REFRESH_SECRET,
+		"TeamUP",
+		log,
+	)
 
 	db := config.SetupDB()
 	defer db.Pool.Close()
@@ -83,15 +89,15 @@ func main() {
 	sessionService := sessionapp.NewSesssionService(sessionRepo, log)
 
 	registerRepo := userregisterinfra.NewUserRepository(db.Queries, db.Pool)
-	registerService := userregisterapp.NewUserService(registerRepo, sessionService, log)
+	registerService := userregisterapp.NewUserService(registerRepo, sessionService, log, tokenService)
 	registerHandler := registeruser.NewUserHandler(registerService, log)
 
 	loginRepo := userlogininfra.NewRepository(db.Queries)
-	loginService := userloginapp.NewUserService(loginRepo, sessionService, log)
+	loginService := userloginapp.NewUserService(loginRepo, sessionService, log, tokenService)
 	loginHandler := loginuser.NewUserHandler(loginService, log)
 
 	refreshSessionRepo := refreshsessioninfra.NewRepository(db.Queries, log)
-	refreshSessionService := refreshsessionapp.NewSessionService(refreshSessionRepo, log)
+	refreshSessionService := refreshsessionapp.NewSessionService(refreshSessionRepo, log, tokenService)
 	refreshSessionHandler := refreshsession.NewHandler(refreshSessionService, log)
 
 	createPostRepo := postcreateinfra.NewRepository(db.Queries, db.Pool)
@@ -115,15 +121,16 @@ func main() {
 	getMyProfileHandler := getmyprofile.NewProfileHandler(getProfileMeService, log)
 
 	api := r.Group("/api")
-	userRouterParams := userroutes.NewRouterParams(signingKey, log)
-	userroutes.UserRouter(api, registerHandler, loginHandler, refreshSessionHandler, getUserByIdHandler, getUserByEmailHandler, userRouterParams, getMyProfileHandler)
+	userRouterIdentityParams := userroutes.NewRouterParams(tokenService, log)
+	userRouterContentParams := postroutes.NewRouterParams(tokenService, log)
+	userroutes.UserRouter(api, registerHandler, loginHandler, refreshSessionHandler, getUserByIdHandler, getUserByEmailHandler, userRouterIdentityParams, getMyProfileHandler)
 	postroutes.PostRouter(
 		api,
 		createPostHandler,
 		updatePostHandler,
 		getPostByIdHandler,
 		getAuthorPostHandler,
-		signingKey,
+		userRouterContentParams,
 		log,
 	)
 

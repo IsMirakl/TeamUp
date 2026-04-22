@@ -3,7 +3,6 @@ package refreshsession
 import (
 	database "backend/internal/database/sqlc"
 	"backend/internal/identity/application/dto"
-	"backend/internal/pkg/config"
 	auth "backend/internal/pkg/utils"
 	"backend/internal/shared/errors"
 	"context"
@@ -19,27 +18,21 @@ type Repository interface {
 }
 
 type Service struct {
-	repository Repository
-	log        *logrus.Logger
+	repository   Repository
+	log          *logrus.Logger
+	tokenService auth.TokenService
 }
 
-func NewSessionService(repository Repository, log *logrus.Logger) *Service {
+func NewSessionService(repository Repository, log *logrus.Logger, tokenService auth.TokenService) *Service {
 	return &Service{
-		repository: repository,
-		log:        log,
+		repository:   repository,
+		log:          log,
+		tokenService: tokenService,
 	}
 }
 
 func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (*dto.LoginResponse, error) {
-	conf, err := config.New(s.log)
-	if err != nil {
-		s.log.WithError(err).Error("Failed to create config")
-		return nil, errors.ErrUnauthorized
-	}
-
-	signingRefreshKey := []byte(conf.SECRET_KEY.REFRESH_SECRET)
-
-	claims, err := auth.ValidateRefreshToken(refreshToken, signingRefreshKey)
+	claims, err := s.tokenService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		s.log.WithError(err).Warn("Invalid refresh token")
 		return nil, errors.ErrUnauthorized
@@ -68,13 +61,13 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (*dto
 		return nil, errors.ErrUnauthorized
 	}
 
-	accessToken, err := auth.CreateToken(claims.UserID, s.log)
+	accessToken, err := s.tokenService.GenerateAccessToken(claims.UserID)
 	if err != nil {
 		s.log.WithError(err).Error("failed to create access token")
 		return nil, err
 	}
 
-	newRefreshToken, err := auth.GenerateRefreshToken(claims.UserID, s.log)
+	newRefreshToken, err := s.tokenService.GenerateRefreshToken(claims.UserID)
 	if err != nil {
 		s.log.WithError(err).Error("failed to create refresh token")
 		return nil, err

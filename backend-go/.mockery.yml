@@ -21,3 +21,10 @@ packages:
     interfaces:
       Repository: {}
       SessionService: {}
+      
+  backend/internal/pkg/utils:
+    config:
+      dir: internal/pkg/utils/mocks
+      pkgname: mocks
+    interfaces:
+      TokenService: {}

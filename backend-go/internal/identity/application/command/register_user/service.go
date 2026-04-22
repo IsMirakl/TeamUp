@@ -26,13 +26,15 @@ type Service struct {
 	repository     Repository
 	sessionService SessionService
 	log            *logrus.Logger
+	tokenService   auth.TokenService
 }
 
-func NewUserService(repository Repository, sessionService SessionService, log *logrus.Logger) *Service {
+func NewUserService(repository Repository, sessionService SessionService, log *logrus.Logger, tokenService auth.TokenService) *Service {
 	return &Service{
 		repository:     repository,
 		sessionService: sessionService,
 		log:            log,
+		tokenService:   tokenService,
 	}
 }
 
@@ -82,13 +84,13 @@ func (s *Service) Create(ctx context.Context, request *dto.CreateUserDTO) (*dto.
 		return nil, err
 	}
 
-	accessToken, err := auth.CreateToken(user.UserID.String(), s.log)
+	accessToken, err := s.tokenService.GenerateAccessToken(user.UserID.String())
 	if err != nil {
 		s.log.WithError(err).Error("failed to create access token")
 		return nil, err
 	}
 
-	refreshToken, err := auth.GenerateRefreshToken(user.UserID.String(), s.log)
+	refreshToken, err := s.tokenService.GenerateRefreshToken(user.UserID.String())
 	if err != nil {
 		s.log.WithError(err).Error("failed to create refresh token")
 		return nil, err

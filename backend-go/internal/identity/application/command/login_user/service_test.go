@@ -5,6 +5,7 @@ import (
 	loginuser "backend/internal/identity/application/command/login_user"
 	"backend/internal/identity/application/command/login_user/mocks"
 	"backend/internal/identity/application/dto"
+	utilsmocks "backend/internal/pkg/utils/mocks"
 	sharedErrors "backend/internal/shared/errors"
 	"context"
 	"errors"
@@ -41,12 +42,13 @@ func makeUUID() pgtype.UUID {
 }
 
 func TestLoginUserNotFound(t *testing.T) {
-	// фейк объекты репозитория и сервиса
 	repository := &mocks.MockRepository{}
 	sessionService := &mocks.MockSessionService{}
+	tokenService := &utilsmocks.MockTokenService{}
+
 	log := logrus.New()
 
-	service := loginuser.NewUserService(repository, sessionService, log)
+	service := loginuser.NewUserService(repository, sessionService, log, tokenService)
 
 	req := &dto.LoginUserDTO{
 		Email:    "test@gmail.com",
@@ -56,7 +58,6 @@ func TestLoginUserNotFound(t *testing.T) {
 	repository.On("GetUserWithPasswordByEmail", mock.Anything, req.Email).
 		Return(database.GetUserWithPasswordByEmailRow{}, pgx.ErrNoRows)
 
-	// act = вызов того, что тестируем
 	resp, err := service.Login(context.Background(), req)
 
 	assert.Nil(t, resp)
@@ -65,14 +66,17 @@ func TestLoginUserNotFound(t *testing.T) {
 
 	repository.AssertExpectations(t)
 	sessionService.AssertNotCalled(t, "CreateSession", mock.Anything, mock.Anything)
+	tokenService.AssertNotCalled(t, "GenerateAccessToken", mock.Anything)
+	tokenService.AssertNotCalled(t, "GenerateRefreshToken", mock.Anything)
 }
 
 func TestLoginRepositoryError(t *testing.T) {
 	repository := &mocks.MockRepository{}
 	sessionService := &mocks.MockSessionService{}
+	tokenService := &utilsmocks.MockTokenService{}
 	log := logrus.New()
 
-	service := loginuser.NewUserService(repository, sessionService, log)
+	service := loginuser.NewUserService(repository, sessionService, log, tokenService)
 
 	req := &dto.LoginUserDTO{
 		Email:    "test@gmail.com",
@@ -89,27 +93,27 @@ func TestLoginRepositoryError(t *testing.T) {
 
 	assert.Nil(t, resp)
 	assert.Error(t, err)
-	assert.ErrorIs(t, expectedErr, err)
+	assert.ErrorIs(t, err, expectedErr)
 
 	repository.AssertExpectations(t)
 	sessionService.AssertNotCalled(t, "CreateSession", mock.Anything, mock.Anything)
-
+	tokenService.AssertNotCalled(t, "GenerateAccessToken", mock.Anything)
+	tokenService.AssertNotCalled(t, "GenerateRefreshToken", mock.Anything)
 }
 
 func TestLoginInvalidPassword(t *testing.T) {
-	repository := &mocks.MockRepository{}         // mock репозитория
-	sessionService := &mocks.MockSessionService{} // mock сервиса
+	repository := &mocks.MockRepository{}
+	sessionService := &mocks.MockSessionService{}
+	tokenService := &utilsmocks.MockTokenService{}
 	log := logrus.New()
 
-	service := loginuser.NewUserService(repository, sessionService, log) // создаем настоящий сервис, который будем тестировать
+	service := loginuser.NewUserService(repository, sessionService, log, tokenService)
 
-	// входные данные
 	req := &dto.LoginUserDTO{
 		Email:    "test@gmail.com",
 		Password: "password123",
 	}
 
-	// делаем вид что юзер нашелся в бд
 	user := database.GetUserWithPasswordByEmailRow{
 		UserID:       makeUUID(),
 		Email:        "test@gmail.com",
@@ -126,52 +130,64 @@ func TestLoginInvalidPassword(t *testing.T) {
 
 	repository.AssertExpectations(t)
 	sessionService.AssertNotCalled(t, "CreateSession", mock.Anything, mock.Anything)
+	tokenService.AssertNotCalled(t, "GenerateAccessToken", mock.Anything)
+	tokenService.AssertNotCalled(t, "GenerateRefreshToken", mock.Anything)
 }
-
 
 func TestLoginSuccess(t *testing.T) {
 	repository := &mocks.MockRepository{}
 	sessionService := &mocks.MockSessionService{}
+	tokenService := &utilsmocks.MockTokenService{}
 	log := logrus.New()
 
-	service := loginuser.NewUserService(repository, sessionService, log)
+	service := loginuser.NewUserService(repository, sessionService, log, tokenService)
 
 	req := &dto.LoginUserDTO{
-		Email: "test@gmail.com",
+		Email:    "test@gmail.com",
 		Password: "password123",
 	}
 
 	user := database.GetUserWithPasswordByEmailRow{
-		UserID: makeUUID(),
-		Email: "test@gmail.com",
+		UserID:       makeUUID(),
+		Email:        "test@gmail.com",
 		PasswordHash: makePasswordHash(t, "password123"),
 	}
 
-	repository.On("GetUserWithPasswordByEmail", mock.Anything, mock.Anything).Return(user, nil)
+	repository.
+		On("GetUserWithPasswordByEmail", mock.Anything, req.Email).
+		Return(user, nil)
 
+	tokenService.
+		On("GenerateAccessToken", user.UserID.String()).
+		Return("access-token", nil)
 
-	sessionService.On("CreateSession", mock.Anything, mock.MatchedBy(func(r *dto.CreateSessionDTO) bool {
-		return r.UserID == user.UserID.String() &&
-		r.RefreshToken != "" &&
-		r.UserAgent == req.UserAgent &&
-		r.ClientIp == req.ClientIP &&
-		r.ID != "" &&
-		r.ExpiresAt.After(time.Now()) &&
-		r.IsBlocked == false
-	})).
-	Return(&dto.SessionResponse{
-		ID: "session-id",
-	}, nil)
+	tokenService.
+		On("GenerateRefreshToken", user.UserID.String()).
+		Return("refresh-token", nil)
+
+	sessionService.
+		On("CreateSession", mock.Anything, mock.MatchedBy(func(r *dto.CreateSessionDTO) bool {
+			return r.UserID == user.UserID.String() &&
+				r.RefreshToken == "refresh-token" &&
+				r.UserAgent == req.UserAgent &&
+				r.ClientIp == req.ClientIP &&
+				r.ID != "" &&
+				r.ExpiresAt.After(time.Now()) &&
+				r.IsBlocked == false
+		})).
+		Return(&dto.SessionResponse{
+			ID: "session-id",
+		}, nil)
 
 	resp, err := service.Login(context.Background(), req)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "session-id", resp.SessionId)
-	assert.NotEmpty(t, resp.AccessToken)
-	assert.NotEmpty(t, resp.RefreshToken)
-	
-	repository.AssertExpectations(t)
-	sessionService.AssertExpectations(t)
+	assert.Equal(t, "access-token", resp.AccessToken)
+	assert.Equal(t, "refresh-token", resp.RefreshToken)
 
+	repository.AssertExpectations(t)
+	tokenService.AssertExpectations(t)
+	sessionService.AssertExpectations(t)
 }

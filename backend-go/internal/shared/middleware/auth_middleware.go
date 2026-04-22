@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func AuthMiddleware(signingKey []byte, log *logrus.Logger) gin.HandlerFunc {
+func AuthMiddleware(tokenService auth.TokenService, log *logrus.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Info("auth middleware triggered")
 
@@ -36,7 +36,7 @@ func AuthMiddleware(signingKey []byte, log *logrus.Logger) gin.HandlerFunc {
 			return
 		}
 
-		claims, err := auth.ValidateToken(tokenString, signingKey)
+		claims, err := tokenService.ValidateAccessToken(tokenString)
 		if err != nil {
 			log.WithError(err).Error("failed to validate token")
 
