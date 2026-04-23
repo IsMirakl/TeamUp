@@ -32,3 +32,9 @@ SET
 WHERE id = $4
 RETURNING id, title, description, tags;
 
+
+-- name: ListPosts :many
+SELECT * FROM posts
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2;

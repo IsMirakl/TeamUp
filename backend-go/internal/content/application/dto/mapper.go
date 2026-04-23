@@ -30,3 +30,16 @@ func ToPostResponses(posts database.Post) *ResponsePostDTO {
 		Tags:        posts.Tags,
 	}
 }
+
+func ToPostListResponse(posts []database.Post) []ResponsePostDTO {
+	result := make([]ResponsePostDTO, 0, len(posts))
+	for _, post := range posts {
+		result = append(result, ResponsePostDTO{
+			ID:          post.ID.String(),
+			Title:       post.Title,
+			Description: post.Description,
+			Tags:        post.Tags,
+		})
+	}
+	return result
+}

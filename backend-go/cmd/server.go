@@ -7,14 +7,17 @@ import (
 	postupdateapp "backend/internal/content/application/command/update_post"
 	postgetauthorapp "backend/internal/content/application/query/get_author_post"
 	postgetbyidapp "backend/internal/content/application/query/get_by_id"
+	postlistapp "backend/internal/content/application/query/list_posts"
 	postcreateinfra "backend/internal/content/infrastructure/persistence/create_post"
 	postgetauthorinfra "backend/internal/content/infrastructure/persistence/get_author_post"
 	postgetbyidinfra "backend/internal/content/infrastructure/persistence/get_by_id"
+	postlistinfra "backend/internal/content/infrastructure/persistence/list_posts"
 	postupdateinfra "backend/internal/content/infrastructure/persistence/update_post"
 	postroutes "backend/internal/content/interfaces/http"
 	createpost "backend/internal/content/interfaces/http/create_post"
 	getauthorpost "backend/internal/content/interfaces/http/get_author_post"
 	getpostbyid "backend/internal/content/interfaces/http/get_by_id"
+	listposts "backend/internal/content/interfaces/http/list_posts"
 	updatepost "backend/internal/content/interfaces/http/update_post"
 	sessionapp "backend/internal/identity/application/command/create_session"
 	userloginapp "backend/internal/identity/application/command/login_user"
@@ -116,6 +119,10 @@ func main() {
 	getAuthorPostService := postgetauthorapp.NewService(getAuthorPostRepo, log)
 	getAuthorPostHandler := getauthorpost.NewHandler(getAuthorPostService, log)
 
+	listPostsRepo := postlistinfra.NewRepository(db.Queries)
+	listPostsService := postlistapp.NewService(listPostsRepo, log)
+	listPostsHandler := listposts.NewHandler(listPostsService, log)
+
 	getProfileMeRepo := getmyprofileinfra.NewRepository(db.Queries, log)
 	getProfileMeService := getmyprofileapp.NewPostService(getProfileMeRepo, log)
 	getMyProfileHandler := getmyprofile.NewProfileHandler(getProfileMeService, log)
@@ -130,6 +137,7 @@ func main() {
 		updatePostHandler,
 		getPostByIdHandler,
 		getAuthorPostHandler,
+		listPostsHandler,
 		userRouterContentParams,
 		log,
 	)

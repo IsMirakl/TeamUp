@@ -99,6 +99,47 @@ func (q *Queries) GetPostById(ctx context.Context, id pgtype.UUID) (Post, error)
 	return i, err
 }
 
+const listPosts = `-- name: ListPosts :many
+SELECT id, created_at, updated_at, deleted_at, title, description, tags, author_id FROM posts
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListPostsParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, listPosts, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Post
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Title,
+			&i.Description,
+			&i.Tags,
+			&i.AuthorID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updatePost = `-- name: UpdatePost :one
 UPDATE posts
 SET
