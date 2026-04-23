@@ -1,6 +1,7 @@
 package createpost
 
 import (
+	"fmt"
 	"net/http"
 
 	appCreatePost "backend/internal/content/application/command/create_post"
@@ -39,7 +40,10 @@ func (h *Handler) Handle(c *gin.Context) {
 
 	userID, ok := userIDInterface.(string)
 	if !ok {
-		h.log.WithField("iser_id", userID).Error("Invalid user_id type")
+		h.log.WithFields(logrus.Fields{
+			"user_id_value": userIDInterface,
+			"user_id_type":  fmt.Sprintf("%T", userIDInterface),
+		}).Error("Invalid user_id type")
 
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "invalid user_id type",
