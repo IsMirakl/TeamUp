@@ -78,31 +78,50 @@ func (q *Queries) GetAuthorPost(ctx context.Context, authorID pgtype.UUID) (Post
 }
 
 const getPostById = `-- name: GetPostById :one
-SELECT id, created_at, updated_at, deleted_at, title, description, tags, author_id FROM posts
-WHERE id = $1 AND deleted_at IS NULL
+SELECT
+    p.id,
+    p.title,
+    p.description,
+    p.tags,
+    COALESCE(NULLIF(u.name, ''), ('user-' || LEFT(p.author_id::text, 8)))::text AS author_name
+FROM posts p
+JOIN users u ON u.user_id = p.author_id
+WHERE p.id = $1 AND p.deleted_at IS NULL
 LIMIT 1
 `
 
-func (q *Queries) GetPostById(ctx context.Context, id pgtype.UUID) (Post, error) {
+type GetPostByIdRow struct {
+	ID          pgtype.UUID
+	Title       string
+	Description string
+	Tags        []string
+	AuthorName  string
+}
+
+func (q *Queries) GetPostById(ctx context.Context, id pgtype.UUID) (GetPostByIdRow, error) {
 	row := q.db.QueryRow(ctx, getPostById, id)
-	var i Post
+	var i GetPostByIdRow
 	err := row.Scan(
 		&i.ID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
 		&i.Title,
 		&i.Description,
 		&i.Tags,
-		&i.AuthorID,
+		&i.AuthorName,
 	)
 	return i, err
 }
 
 const listPosts = `-- name: ListPosts :many
-SELECT id, created_at, updated_at, deleted_at, title, description, tags, author_id FROM posts
-WHERE deleted_at IS NULL
-ORDER BY created_at DESC
+SELECT
+    p.id,
+    p.title,
+    p.description,
+    p.tags,
+    COALESCE(NULLIF(u.name, ''), ('user-' || LEFT(p.author_id::text, 8)))::text AS author_name
+FROM posts p
+JOIN users u ON u.user_id = p.author_id
+WHERE p.deleted_at IS NULL
+ORDER BY p.created_at DESC
 LIMIT $1 OFFSET $2
 `
 
@@ -111,24 +130,29 @@ type ListPostsParams struct {
 	Offset int32
 }
 
-func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, error) {
+type ListPostsRow struct {
+	ID          pgtype.UUID
+	Title       string
+	Description string
+	Tags        []string
+	AuthorName  string
+}
+
+func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]ListPostsRow, error) {
 	rows, err := q.db.Query(ctx, listPosts, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	var items []ListPostsRow
 	for rows.Next() {
-		var i Post
+		var i ListPostsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
 			&i.Title,
 			&i.Description,
 			&i.Tags,
-			&i.AuthorID,
+			&i.AuthorName,
 		); err != nil {
 			return nil, err
 		}

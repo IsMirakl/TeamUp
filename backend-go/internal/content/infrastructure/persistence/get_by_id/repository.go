@@ -15,6 +15,6 @@ func NewRepository(q *database.Queries) *Repository {
 	return &Repository{q: q}
 }
 
-func (r *Repository) GetPostById(ctx context.Context, id pgtype.UUID) (database.Post, error) {
+func (r *Repository) GetPostById(ctx context.Context, id pgtype.UUID) (database.GetPostByIdRow, error) {
 	return r.q.GetPostById(ctx, id)
 }

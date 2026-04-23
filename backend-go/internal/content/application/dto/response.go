@@ -5,4 +5,5 @@ type ResponsePostDTO struct {
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
 	Tags        []string `json:"tags"`
+	Author      string   `json:"author,omitempty"`
 }

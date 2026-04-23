@@ -10,6 +10,17 @@ func ToPostResponse(post database.Post) *ResponsePostDTO {
 		Title:       post.Title,
 		Description: post.Description,
 		Tags:        post.Tags,
+		Author:      "",
+	}
+}
+
+func ToPostByIDResponse(post database.GetPostByIdRow) *ResponsePostDTO {
+	return &ResponsePostDTO{
+		ID:          post.ID.String(),
+		Title:       post.Title,
+		Description: post.Description,
+		Tags:        post.Tags,
+		Author:      post.AuthorName,
 	}
 }
 
@@ -19,6 +30,7 @@ func ToPostUpdateResponse(post database.UpdatePostRow) *ResponsePostDTO {
 		Title:       post.Title,
 		Description: post.Description,
 		Tags:        post.Tags,
+		Author:      "",
 	}
 }
 
@@ -28,10 +40,11 @@ func ToPostResponses(posts database.Post) *ResponsePostDTO {
 		Title:       posts.Title,
 		Description: posts.Description,
 		Tags:        posts.Tags,
+		Author:      "",
 	}
 }
 
-func ToPostListResponse(posts []database.Post) []ResponsePostDTO {
+func ToPostListResponse(posts []database.ListPostsRow) []ResponsePostDTO {
 	result := make([]ResponsePostDTO, 0, len(posts))
 	for _, post := range posts {
 		result = append(result, ResponsePostDTO{
@@ -39,6 +52,7 @@ func ToPostListResponse(posts []database.Post) []ResponsePostDTO {
 			Title:       post.Title,
 			Description: post.Description,
 			Tags:        post.Tags,
+			Author:      post.AuthorName,
 		})
 	}
 	return result

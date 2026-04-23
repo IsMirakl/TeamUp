@@ -14,14 +14,14 @@ type Service struct {
 }
 
 type Repository interface {
-	ListPosts(ctx context.Context, limit, offset int32) ([]database.Post, error)
+	ListPosts(ctx context.Context, limit, offset int32) ([]database.ListPostsRow, error)
 }
 
 func NewService(repository Repository, log *logrus.Logger) *Service {
 	return &Service{repository: repository, log: log}
 }
 
-func (s *Service) ListPosts(ctx context.Context, limit, offset int32) ([]database.Post, error) {
+func (s *Service) ListPosts(ctx context.Context, limit, offset int32) ([]database.ListPostsRow, error) {
 	s.log.WithFields(logrus.Fields{"limit": limit, "offset": offset}).Info("ListPosts called")
 
 	posts, err := s.repository.ListPosts(ctx, limit, offset)

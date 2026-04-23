@@ -15,14 +15,14 @@ type Service struct {
 }
 
 type Repository interface {
-	GetPostById(ctx context.Context, id pgtype.UUID) (database.Post, error)
+	GetPostById(ctx context.Context, id pgtype.UUID) (database.GetPostByIdRow, error)
 }
 
 func NewService(repository Repository, log *logrus.Logger) *Service {
 	return &Service{repository: repository, log: log}
 }
 
-func (s *Service) GetById(ctx context.Context, id string) (*database.Post, error) {
+func (s *Service) GetById(ctx context.Context, id string) (*database.GetPostByIdRow, error) {
 	s.log.WithField("post_id", id).Info("GetById called")
 
 	postID, err := uuid.Parse(id)
@@ -31,7 +31,7 @@ func (s *Service) GetById(ctx context.Context, id string) (*database.Post, error
 			WithField("userID", id).
 			Error("failed to parse userID")
 
-		return &database.Post{}, err
+		return &database.GetPostByIdRow{}, err
 	}
 
 	pgID := pgtype.UUID{
@@ -45,7 +45,7 @@ func (s *Service) GetById(ctx context.Context, id string) (*database.Post, error
 			WithField("post_id", id).
 			Error("failed to get post from repository")
 
-		return &database.Post{}, err
+		return &database.GetPostByIdRow{}, err
 	}
 
 	s.log.WithField("post_id", id).Info("post fetched successfully")

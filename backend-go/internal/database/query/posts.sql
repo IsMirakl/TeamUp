@@ -18,8 +18,15 @@ WHERE author_id = $1 AND deleted_at IS NULL
 LIMIT 1;
 
 -- name: GetPostById :one
-SELECT * FROM posts
-WHERE id = $1 AND deleted_at IS NULL
+SELECT
+    p.id,
+    p.title,
+    p.description,
+    p.tags,
+    COALESCE(NULLIF(u.name, ''), ('user-' || LEFT(p.author_id::text, 8)))::text AS author_name
+FROM posts p
+JOIN users u ON u.user_id = p.author_id
+WHERE p.id = $1 AND p.deleted_at IS NULL
 LIMIT 1;
 
 -- name: UpdatePost :one
@@ -34,7 +41,14 @@ RETURNING id, title, description, tags;
 
 
 -- name: ListPosts :many
-SELECT * FROM posts
-WHERE deleted_at IS NULL
-ORDER BY created_at DESC
+SELECT
+    p.id,
+    p.title,
+    p.description,
+    p.tags,
+    COALESCE(NULLIF(u.name, ''), ('user-' || LEFT(p.author_id::text, 8)))::text AS author_name
+FROM posts p
+JOIN users u ON u.user_id = p.author_id
+WHERE p.deleted_at IS NULL
+ORDER BY p.created_at DESC
 LIMIT $1 OFFSET $2;
