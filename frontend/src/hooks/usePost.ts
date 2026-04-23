@@ -2,6 +2,8 @@ import { usePostStore } from '../stores/postsStore';
 
 export const usePost = () => {
   const {
+    posts,
+    fetchPosts,
     post,
     fetchPost,
     loading,
@@ -12,6 +14,8 @@ export const usePost = () => {
   } = usePostStore();
 
   return {
+    posts,
+    fetchPosts,
     post,
     fetchPost,
     isLoading: loading,

@@ -3,14 +3,13 @@ export interface Post {
   title: string;
   description: string;
   tags: string[];
-  author: string;
+  author?: string;
 }
 
 export interface PostCreate {
   title: string;
   description: string;
   tags: string[];
-  author: string;
 }
 
 export interface PostUpdate {

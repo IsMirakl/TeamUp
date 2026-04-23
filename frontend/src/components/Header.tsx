@@ -28,6 +28,12 @@ const Header = () => {
           </Link>
           <Link
             className="transition hover:text-sky-700"
+            to={'/posts/new'}
+          >
+            Создать пост
+          </Link>
+          <Link
+            className="transition hover:text-sky-700"
             to={'/'}
           >
             Мои посты
