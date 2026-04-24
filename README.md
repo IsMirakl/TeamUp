@@ -19,14 +19,16 @@ TeamUp - platform for finding partners and teams for startups and pet projects. 
 - TypeScript 5.9
 - TailwindCSS 4.1
 - Vite 7.3
-- Zustand
-- Axios
+- Zustand 5
+- Axios 1.15
 
 ### Backend
 - Golang 1.26
 - PostgreSQL 18
 - Gin 1.12
-- Gorm 2.0
+- Sqlc 1.25
+- Testify 1.11
+- Mockery 3.7
 
 ### Infrastructure
 - Docker 29.1
