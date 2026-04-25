@@ -28,3 +28,10 @@ packages:
       pkgname: mocks
     interfaces:
       TokenService: {}
+
+  backend/internal/identity/application/command/create_session:
+    config:
+      dir: internal/identity/application/command/create_session/mocks
+      pkgname: mocks
+    interfaces:
+      Repository: {}
