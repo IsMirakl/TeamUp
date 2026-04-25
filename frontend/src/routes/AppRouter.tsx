@@ -2,6 +2,7 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import CreatePostPage from '../pages/CreatePostPage';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
+import ProfilePage from '../pages/ProfilePage';
 import RegisterPage from '../pages/RegisterPage';
 
 const AppRouter: React.FC = () => {
@@ -20,6 +21,11 @@ const AppRouter: React.FC = () => {
         <Route
           path="/register"
           element={<RegisterPage />}
+        />
+
+        <Route
+          path="/profile"
+          element={<ProfilePage />}
         />
 
         <Route

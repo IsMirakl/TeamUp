@@ -1,36 +1,12 @@
-import { useState } from 'react';
-import { profileAPI } from '../api/endpoints/profile';
-import type { ProfileData } from '../types/User';
+import { useProfileStore } from '../stores/profileStore';
 
 export const useProfile = () => {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const getMyProfile = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await profileAPI.getMy();
-      setProfile(response.profile ?? null);
-      return true;
-    } catch (err) {
-      const message =
-        typeof err === 'object' && err !== null && 'response' in err
-          ? (err as { response?: { data?: { message?: string } } }).response
-              ?.data?.message
-          : undefined;
-      setError(message || 'Failed to fetch profile');
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const clearError = () => {
-    setError(null);
-  };
+  const profile = useProfileStore(state => state.profile);
+  const getMyProfile = useProfileStore(state => state.getMyProfile);
+  const error = useProfileStore(state => state.error);
+  const isLoading = useProfileStore(state => state.isLoading);
+  const clearError = useProfileStore(state => state.clearError);
+  const clearProfile = useProfileStore(state => state.clearProfile);
 
   return {
     profile,
@@ -38,5 +14,6 @@ export const useProfile = () => {
     error,
     isLoading,
     clearError,
+    clearProfile,
   };
 };

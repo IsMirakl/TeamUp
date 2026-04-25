@@ -1,6 +1,6 @@
 export interface User {
   email: string;
-  role: UserRoles;
+  role: UserRole;
   name: string;
   avatarUrl?: string;
   subscriptionPlan: SubscriptionPlan;
@@ -28,21 +28,18 @@ export interface ProfileData {
   name: string;
   email: string;
   avatar?: string;
-  role: UserRoles;
+  role: UserRole;
   subscriptionPlan: SubscriptionPlan;
 }
 
-export interface ProfileResponse  {
-  profile: ProfileData;
-};
-
-enum UserRoles {
-  USER,
-  ADMIN,
+export interface ProfileResponse {
+  user_id: string;
+  name: string;
+  email: string;
+  avatar?: string | null;
+  role: UserRole;
+  subscriptionPlan: SubscriptionPlan;
 }
 
-enum SubscriptionPlan {
-  FREE,
-  PRO,
-  ENTERPRISE,
-}
+export type UserRole = 'user' | 'admin' | 'team_lead';
+export type SubscriptionPlan = 'Free' | 'Pro' | 'Enterprise';

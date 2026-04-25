@@ -17,11 +17,10 @@ type UserApiResponse = {
 
 const mapUserResponse = (data: UserApiResponse): User => ({
   email: data.email,
-  role: data.role as unknown as User['role'],
+  role: data.role as User['role'],
   name: data.name,
   avatarUrl: data.avatar ?? undefined,
-  subscriptionPlan:
-    data.subscriptionPlan as unknown as User['subscriptionPlan'],
+  subscriptionPlan: data.subscriptionPlan as User['subscriptionPlan'],
 });
 
 export const authAPI = {

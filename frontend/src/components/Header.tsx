@@ -47,9 +47,12 @@ const Header = () => {
         </nav>
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <div className="rounded-full border border-slate-300/70 bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-              Профиль
-            </div>
+            <Link
+              className="rounded-full border border-slate-300/70 bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-white"
+              to={'/profile'}
+            >
+              {user?.name ? user.name : 'Профиль'}
+            </Link>
           ) : (
             <Link
               className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800"
