@@ -3,11 +3,11 @@ import { useAuth } from './hooks/useAuth';
 import AppRouter from './routes/AppRouter';
 
 function App() {
-  const { checkAuth } = useAuth();
+  const { initialize } = useAuth();
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    initialize();
+  }, [initialize]);
   return (
     <>
       <AppRouter />
