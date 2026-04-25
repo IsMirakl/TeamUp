@@ -5,46 +5,60 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
-
 type DB struct {
 	Queries *database.Queries
-	Pool *pgxpool.Pool
+	Pool    *pgxpool.Pool
 }
 
-
 func SetupDB() *DB {
-	errEnv := godotenv.Load()
+	_ = godotenv.Load()
+	_ = godotenv.Load("cmd/.env")
 	ctx := context.Background()
 
-	if errEnv != nil {
-		log.Fatal("No .env file found")
+	dbUser, err := getEnv("POSTGRES_USER")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	dbUser := os.Getenv("POSTGRES_USER")
-	dbPassword := os.Getenv("POSTGRES_PASSWORD")
-	dbName := os.Getenv("POSTGRES_DB")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
+	dbPassword, err := getEnv("POSTGRES_PASSWORD")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	dbName, err := getEnv("POSTGRES_DB")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dbHost, err := getEnv("DB_HOST")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dbPort, err := getEnv("DB_PORT")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", dbHost, dbUser, dbPassword, dbName, dbPort)
 	pool, err := pgxpool.New(ctx, dsn)
-
 	if err != nil {
-		log.Fatal("failed to connect to the database")
+		log.Fatalf("failed to create db pool: %v", err)
+	}
+
+	if err := pool.Ping(ctx); err != nil {
+		log.Fatalf("failed to connect to database (%s:%s/%s): %v", dbHost, dbPort, dbName, err)
 	}
 
 	quires := database.New(pool)
 
 	return &DB{
 		Queries: quires,
-		Pool: pool,
+		Pool:    pool,
 	}
-	
 }
