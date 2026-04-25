@@ -19,7 +19,7 @@ type Service struct {
 	log        *logrus.Logger
 }
 
-func NewSesssionService(repository Repository, log *logrus.Logger) *Service {
+func NewSessionService(repository Repository, log *logrus.Logger) *Service {
 	return &Service{
 		repository: repository,
 		log:        log,
