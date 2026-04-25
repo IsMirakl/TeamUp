@@ -3,10 +3,10 @@ package getmyprofile
 import (
 	"backend/internal/identity/application/dto"
 	appProfile "backend/internal/identity/application/query/get_my_profile"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,9 +33,9 @@ func (h *Handler) Handle(c *gin.Context) {
 		return
 	}
 
-	userID, ok := rawUserID.(pgtype.UUID)
+	userID, ok := rawUserID.(string)
 	if !ok {
-		h.log.Error("Failed to cast userID to UUID")
+		h.log.WithField("user_id_type", fmt.Sprintf("%T", rawUserID)).Error("Failed to cast userID to string")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
