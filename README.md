@@ -1,77 +1,87 @@
 # TeamUp
-TeamUp - platform for finding partners and teams for startups and pet projects. Service helps find people based on skills, interests, and goals.
+TeamUp is a platform for finding partners and building teams for startups and pet projects.
 
----
+## Status
 
-## Features
+Implemented:
 - User registration and authentication
-- Profiles with skill, stacks and descriptions
-- Creating projects and finding participants
-- Chat between participants
-- Notifications
+- Posts feed (search + tag filtering)
+- Create post
+- Profile page (from `/api/v1/profile/me`)
 
----
+Planned:
+- Projects and participants
+- Chat
+- Notifications
 
 ## Tech Stack
 
-### Frontend
-- React 19
-- TypeScript 5.9
-- TailwindCSS 4.1
-- Vite 7.3
+Frontend:
+- React 19 + TypeScript 5.9 (Vite)
+- Tailwind CSS 4.1
 - Zustand 5
-- Axios 1.15
+- Axios
 
-### Backend
-- Golang 1.26
-- PostgreSQL 18
-- Gin 1.12
-- Sqlc 1.25
-- Testify 1.11
-- Mockery 3.7
+Backend:
+- Go 1.25 + Gin
+- PostgreSQL 18 (pgx)
+- sqlc
 
-### Infrastructure
-- Docker 29.1
-- Docker Compose 5.0
+Infra:
+- Docker + Docker Compose
 
----
+## Getting Started (Local)
 
-## Getting Started
-
-### 1 Clone repository
+### 1) Clone
 ```bash
 git clone https://github.com/IsMirakl/TeamUp.git
-cd teamup
+cd TeamUp
 ```
-### 2 Start database
+
+### 2) Configure environment
+Backend loads env from `backend-go/cmd/.env`.
+
+Required variables:
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `DB_HOST`, `DB_PORT`
+- `SECRET_KEY`, `REFRESH_TOKEN_KEY`
+
+### 3) Start Postgres
 ```bash
-docker-compose up -d
+cd backend-go
+docker compose up -d
 ```
-### 3 Start Backend
+
+If this is your first run, apply SQL migrations from `backend-go/internal/database/migration`.
+
+### 4) Start Backend API
 ```bash
 cd backend-go
 go mod tidy
 go run cmd/server.go
 ```
-### Start Frontend
+
+Backend runs on `http://localhost:8080`.
+
+### 5) Start Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
----
+Frontend runs on `http://localhost:5173` and calls API at `http://localhost:8080` (see `frontend/src/api/axiosConfig.ts`).
 
-# Api Documentation
-After launch, the backend is available at:
-http://localhost:3000/api
+## API
+Base path: `http://localhost:8080/api`
 
-# Database
-PostgreSQL is used as a database, and work with the database is carried out through Prisma ORM.
-The database schema is described in:
-docs/database.md
+Common endpoints:
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/profile/me`
 
----
+## Repo Layout
+- `backend-go/` Go API server
+- `frontend/` React app
 
-# Author
+## Author
 Daniil Bodrov
