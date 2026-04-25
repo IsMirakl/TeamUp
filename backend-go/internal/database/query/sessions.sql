@@ -14,11 +14,24 @@ RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_a
 -- name: GetSessionByRefreshToken :one
 SELECT id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
 FROM sessions
-WHERE refresh_token = $1 AND revoked_at IS NULL;
+WHERE refresh_token = $1 AND revoked_at IS NULL AND is_blocked = false AND expires_at > NOW();
 
 -- name: UpdateSessionRefreshToken :one
 UPDATE sessions
 SET refresh_token = $2,
     expires_at = $3
+WHERE id = $1 AND revoked_at IS NULL AND is_blocked = false AND expires_at > NOW()
+RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked;
+
+-- name: RevokeSession :one
+UPDATE sessions
+SET revoked_at = NOW()
 WHERE id = $1 AND revoked_at IS NULL
+RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked;
+
+-- name: RevokeSessionByRefreshToken :one
+UPDATE sessions
+SET revoked_at = NOW()
+WHERE refresh_token = $1
+  AND revoked_at IS NULL
 RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked;

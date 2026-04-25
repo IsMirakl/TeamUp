@@ -23,6 +23,7 @@ import (
 	userloginapp "backend/internal/identity/application/command/login_user"
 	refreshsessionapp "backend/internal/identity/application/command/refresh_session"
 	userregisterapp "backend/internal/identity/application/command/register_user"
+	revokesessionapp "backend/internal/identity/application/command/revoke_session"
 	usergetbyemailapp "backend/internal/identity/application/query/get_by_email"
 	usergetbyidapp "backend/internal/identity/application/query/get_by_id"
 	getmyprofileapp "backend/internal/identity/application/query/get_my_profile"
@@ -33,6 +34,7 @@ import (
 	userlogininfra "backend/internal/identity/infrastructure/persistence/login_user"
 	refreshsessioninfra "backend/internal/identity/infrastructure/persistence/refresh_session"
 	userregisterinfra "backend/internal/identity/infrastructure/persistence/register_user"
+	revokesessioninfra "backend/internal/identity/infrastructure/persistence/revoke_session"
 	userroutes "backend/internal/identity/interfaces/http"
 	getuserbyemail "backend/internal/identity/interfaces/http/get_by_email"
 	getuserbyid "backend/internal/identity/interfaces/http/get_by_id"
@@ -40,6 +42,7 @@ import (
 	loginuser "backend/internal/identity/interfaces/http/login_user"
 	refreshsession "backend/internal/identity/interfaces/http/refresh_session"
 	registeruser "backend/internal/identity/interfaces/http/register_user"
+	revokesession "backend/internal/identity/interfaces/http/revoke_session"
 
 	"backend/internal/pkg/config"
 	"backend/internal/pkg/logger"
@@ -89,7 +92,7 @@ func main() {
 	getUserByEmailHandler := getuserbyemail.NewHandler(getUserByEmailService, log)
 
 	sessionRepo := sessioninfra.NewRepository(db.Queries, log)
-	sessionService := sessionapp.NewSesssionService(sessionRepo, log)
+	sessionService := sessionapp.NewSessionService(sessionRepo, log)
 
 	registerRepo := userregisterinfra.NewUserRepository(db.Queries, db.Pool)
 	registerService := userregisterapp.NewUserService(registerRepo, sessionService, log, tokenService)
@@ -102,6 +105,10 @@ func main() {
 	refreshSessionRepo := refreshsessioninfra.NewRepository(db.Queries, log)
 	refreshSessionService := refreshsessionapp.NewSessionService(refreshSessionRepo, log, tokenService)
 	refreshSessionHandler := refreshsession.NewHandler(refreshSessionService, log)
+
+	revokeSessionRepo := revokesessioninfra.NewRepository(db.Queries, log)
+	revokeSessionService := revokesessionapp.NewService(revokeSessionRepo, log)
+	revokeSessionHandler := revokesession.NewSessionHandler(revokeSessionService, log)
 
 	createPostRepo := postcreateinfra.NewRepository(db.Queries, db.Pool)
 	createPostService := postcreateapp.NewService(createPostRepo, log)
@@ -130,7 +137,7 @@ func main() {
 	api := r.Group("/api")
 	userRouterIdentityParams := userroutes.NewRouterParams(tokenService, log)
 	userRouterContentParams := postroutes.NewRouterParams(tokenService, log)
-	userroutes.UserRouter(api, registerHandler, loginHandler, refreshSessionHandler, getUserByIdHandler, getUserByEmailHandler, userRouterIdentityParams, getMyProfileHandler)
+	userroutes.UserRouter(api, registerHandler, loginHandler, refreshSessionHandler, revokeSessionHandler, getUserByIdHandler, getUserByEmailHandler, userRouterIdentityParams, getMyProfileHandler)
 	postroutes.PostRouter(
 		api,
 		createPostHandler,

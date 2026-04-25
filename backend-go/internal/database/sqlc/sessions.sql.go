@@ -61,7 +61,7 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 const getSessionByRefreshToken = `-- name: GetSessionByRefreshToken :one
 SELECT id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
 FROM sessions
-WHERE refresh_token = $1 AND revoked_at IS NULL
+WHERE refresh_token = $1 AND revoked_at IS NULL AND is_blocked = false AND expires_at > NOW()
 `
 
 func (q *Queries) GetSessionByRefreshToken(ctx context.Context, refreshToken string) (Session, error) {
@@ -81,11 +81,60 @@ func (q *Queries) GetSessionByRefreshToken(ctx context.Context, refreshToken str
 	return i, err
 }
 
+const revokeSession = `-- name: RevokeSession :one
+UPDATE sessions
+SET revoked_at = NOW()
+WHERE id = $1 AND revoked_at IS NULL
+RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
+`
+
+func (q *Queries) RevokeSession(ctx context.Context, id pgtype.UUID) (Session, error) {
+	row := q.db.QueryRow(ctx, revokeSession, id)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshToken,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.RevokedAt,
+		&i.UserAgent,
+		&i.ClientIp,
+		&i.IsBlocked,
+	)
+	return i, err
+}
+
+const revokeSessionByRefreshToken = `-- name: RevokeSessionByRefreshToken :one
+UPDATE sessions
+SET revoked_at = NOW()
+WHERE refresh_token = $1
+  AND revoked_at IS NULL
+RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
+`
+
+func (q *Queries) RevokeSessionByRefreshToken(ctx context.Context, refreshToken string) (Session, error) {
+	row := q.db.QueryRow(ctx, revokeSessionByRefreshToken, refreshToken)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshToken,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.RevokedAt,
+		&i.UserAgent,
+		&i.ClientIp,
+		&i.IsBlocked,
+	)
+	return i, err
+}
+
 const updateSessionRefreshToken = `-- name: UpdateSessionRefreshToken :one
 UPDATE sessions
 SET refresh_token = $2,
     expires_at = $3
-WHERE id = $1 AND revoked_at IS NULL
+WHERE id = $1 AND revoked_at IS NULL AND is_blocked = false AND expires_at > NOW()
 RETURNING id, user_id, refresh_token, expires_at, created_at, revoked_at, user_agent, client_ip, is_blocked
 `
 

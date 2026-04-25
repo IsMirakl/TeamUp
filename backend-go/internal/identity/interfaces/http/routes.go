@@ -7,6 +7,7 @@ import (
 	loginuser "backend/internal/identity/interfaces/http/login_user"
 	refreshsession "backend/internal/identity/interfaces/http/refresh_session"
 	registeruser "backend/internal/identity/interfaces/http/register_user"
+	revokesession "backend/internal/identity/interfaces/http/revoke_session"
 	auth "backend/internal/pkg/utils"
 
 	"backend/internal/shared/middleware"
@@ -17,13 +18,13 @@ import (
 
 type RouterParams struct {
 	tokenService auth.TokenService
-	log        *logrus.Logger
+	log          *logrus.Logger
 }
 
 func NewRouterParams(tokenService auth.TokenService, log *logrus.Logger) RouterParams {
 	return RouterParams{
 		tokenService: tokenService,
-		log:        log,
+		log:          log,
 	}
 }
 
@@ -32,6 +33,7 @@ func UserRouter(
 	registerHandler *registeruser.Handler,
 	loginHandler *loginuser.Handler,
 	refreshHandler *refreshsession.Handler,
+	revokeSessionHandler *revokesession.Handler,
 	getUserById *getUserById.Handler,
 	getUserByEmail *getUserByEmail.Handler,
 	params RouterParams,
