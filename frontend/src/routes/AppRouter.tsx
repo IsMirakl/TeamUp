@@ -2,6 +2,8 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import CreatePostPage from '../pages/CreatePostPage';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
+import MyPostsPage from '../pages/MyPostsPage';
+import PostResponsesPage from '../pages/PostResponsesPage';
 import ProfilePage from '../pages/ProfilePage';
 import RegisterPage from '../pages/RegisterPage';
 
@@ -31,6 +33,16 @@ const AppRouter: React.FC = () => {
         <Route
           path="/posts/new"
           element={<CreatePostPage />}
+        />
+
+        <Route
+          path="/my/posts"
+          element={<MyPostsPage />}
+        />
+
+        <Route
+          path="/posts/:id/responses"
+          element={<PostResponsesPage />}
         />
 
         <Route

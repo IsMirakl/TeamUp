@@ -1,6 +1,6 @@
 import { useAuthStore } from '../stores/authStore';
 
-export const   useAuth = () => {
+export const useAuth = () => {
   const user = useAuthStore(state => state.user);
   const isLoading = useAuthStore(state => state.isLoading);
   const error = useAuthStore(state => state.error);

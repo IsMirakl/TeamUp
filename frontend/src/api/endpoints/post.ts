@@ -1,4 +1,5 @@
 import type { Post, PostCreate, PostUpdate } from '../../types/Post';
+import type { PostResponse } from '../../types/PostResponse';
 import { api } from '../axiosConfig';
 
 const normalizePost = (raw: unknown): Post => {
@@ -48,10 +49,53 @@ export const postAPI = {
     return normalizePost(response.data);
   },
 
+  getResponses: async (postId: string): Promise<PostResponse[]> => {
+    const response = await api.get(`/api/v1/posts/post/${postId}/responses`);
+    return Array.isArray(response.data)
+      ? response.data.map(normalizePostResponse)
+      : [];
+  },
+
   respond: async (postId: string, message: string): Promise<unknown> => {
     const response = await api.post(`/api/v1/posts/post/${postId}/responses`, {
       message,
     });
     return response.data;
   },
+};
+
+const normalizePostResponse = (raw: unknown): PostResponse => {
+  const obj: Record<string, unknown> =
+    typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+
+  const readString = (...keys: string[]) => {
+    for (const key of keys) {
+      const v = obj[key];
+      if (typeof v === 'string') return v;
+      if (typeof v === 'number') return String(v);
+    }
+    return '';
+  };
+
+  const readNullableString = (...keys: string[]) => {
+    for (const key of keys) {
+      const v = obj[key];
+      if (typeof v === 'string') return v;
+      if (v === null) return null;
+    }
+    return null;
+  };
+
+  return {
+    responseId: readString('response_id', 'responseId', 'ResponseID', 'ResponseId'),
+    postId: readString('post_id', 'postId', 'PostID', 'PostId'),
+    userId: readString('user_id', 'userId', 'UserID', 'UserId'),
+    message: readString('message', 'Message'),
+    status: readString('status', 'Status'),
+    createdAt: readString('created_at', 'createdAt', 'CreatedAt'),
+    updatedAt: readString('updated_at', 'updatedAt', 'UpdatedAt'),
+    email: readString('email', 'Email'),
+    name: readString('name', 'Name'),
+    avatar: readNullableString('avatar', 'Avatar'),
+  };
 };
