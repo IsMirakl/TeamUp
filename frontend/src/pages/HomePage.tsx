@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import RespondModal from '../features/posts/components/RespondModal';
 import Header from '../components/Header';
 import PostCard from '../features/posts/components/PostCard';
@@ -18,7 +18,17 @@ const HomePage = () => {
     fetchPosts(50, 0);
   }, [fetchPosts]);
 
-  const normalizedQuery = useMemo(() => searchQuery.trim().toLowerCase(), [searchQuery]);
+  const deferredSearch = useDeferredValue(searchQuery);
+  const normalizedQuery = useMemo(() => deferredSearch.trim().toLowerCase(), [deferredSearch]);
+
+  const handleClearSearch = useCallback(() => setSearchQuery(''), []);
+  const handleResetFilters = useCallback(() => {
+    setActiveTag(null);
+    setSearchQuery('');
+  }, []);
+  const handleToggleTag = useCallback((clicked: string) => {
+    setActiveTag(prev => (prev === clicked ? null : clicked));
+  }, []);
 
   const filteredPosts = useMemo(() => {
     const byTag = activeTag
@@ -70,11 +80,8 @@ const HomePage = () => {
           normalizedQuery={normalizedQuery}
           activeTag={activeTag}
           onChangeSearchQuery={setSearchQuery}
-          onClearSearch={() => setSearchQuery('')}
-          onResetFilters={() => {
-            setActiveTag(null);
-            setSearchQuery('');
-          }}
+          onClearSearch={handleClearSearch}
+          onResetFilters={handleResetFilters}
         />
 
         {error ? (
@@ -109,9 +116,7 @@ const HomePage = () => {
                 activeTag={activeTag}
                 expanded={expandedPostId === post.id}
                 responded={respondedPostId === post.id}
-                onToggleTag={clicked =>
-                  setActiveTag(prev => (prev === clicked ? null : clicked))
-                }
+                onToggleTag={handleToggleTag}
                 onToggleExpanded={() =>
                   setExpandedPostId(prev => (prev === post.id ? null : post.id))
                 }

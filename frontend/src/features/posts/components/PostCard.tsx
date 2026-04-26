@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Post } from '../../../types/Post';
 import TagPill from './TagPill';
 
@@ -21,7 +22,9 @@ const PostCard = ({
   onRespond,
 }: PostCardProps) => {
   return (
-    <article className="group rounded-3xl border border-slate-200/80 bg-white/85 p-6 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-2xl hover:shadow-slate-900/10">
+    <article className="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(240,249,255,0.66),rgba(255,251,235,0.62))] p-6 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-slate-900/10">
+      <div className="pointer-events-none absolute inset-0 opacity-70 [background:radial-gradient(120%_120%_at_0%_0%,rgba(14,116,144,0.14),transparent_60%),radial-gradient(110%_110%_at_100%_0%,rgba(234,179,8,0.12),transparent_58%)]" />
+      <div className="relative">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 className="truncate text-lg font-semibold text-slate-900 transition group-hover:text-sky-800">
@@ -75,8 +78,9 @@ const PostCard = ({
           <span className="text-xs text-slate-500">Отправьте сообщение автору</span>
         )}
       </div>
+      </div>
     </article>
   );
 };
 
-export default PostCard;
+export default memo(PostCard);

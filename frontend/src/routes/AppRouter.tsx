@@ -1,55 +1,35 @@
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import CreatePostPage from '../pages/CreatePostPage';
-import HomePage from '../pages/HomePage';
-import LoginPage from '../pages/LoginPage';
-import MyPostsPage from '../pages/MyPostsPage';
-import PostResponsesPage from '../pages/PostResponsesPage';
-import ProfilePage from '../pages/ProfilePage';
-import RegisterPage from '../pages/RegisterPage';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
+const HomePage = lazy(() => import('../pages/HomePage'));
+const LoginPage = lazy(() => import('../pages/LoginPage'));
+const RegisterPage = lazy(() => import('../pages/RegisterPage'));
+const ProfilePage = lazy(() => import('../pages/ProfilePage'));
+const CreatePostPage = lazy(() => import('../pages/CreatePostPage'));
+const MyPostsPage = lazy(() => import('../pages/MyPostsPage'));
+const PostResponsesPage = lazy(() => import('../pages/PostResponsesPage'));
+
+const PageLoader = () => (
+  <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-sky-50 px-6 py-10">
+    <p className="text-sm text-slate-600">Загружаем…</p>
+  </div>
+);
 
 const AppRouter: React.FC = () => {
   return (
     <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={<HomePage />}
-        />
-
-        <Route
-          path="/login"
-          element={<LoginPage />}
-        />
-        <Route
-          path="/register"
-          element={<RegisterPage />}
-        />
-
-        <Route
-          path="/profile"
-          element={<ProfilePage />}
-        />
-
-        <Route
-          path="/posts/new"
-          element={<CreatePostPage />}
-        />
-
-        <Route
-          path="/my/posts"
-          element={<MyPostsPage />}
-        />
-
-        <Route
-          path="/posts/:id/responses"
-          element={<PostResponsesPage />}
-        />
-
-        <Route
-          path="/home"
-          element={<HomePage />}
-        />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/posts/new" element={<CreatePostPage />} />
+          <Route path="/my/posts" element={<MyPostsPage />} />
+          <Route path="/posts/:id/responses" element={<PostResponsesPage />} />
+          <Route path="/home" element={<HomePage />} />
+        </Routes>
+      </Suspense>
     </Router>
   );
 };
