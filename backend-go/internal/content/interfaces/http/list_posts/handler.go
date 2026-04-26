@@ -1,6 +1,7 @@
 package listposts
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -21,24 +22,21 @@ func NewHandler(service *appListPosts.Service, log *logrus.Logger) *Handler {
 }
 
 func (h *Handler) Handle(c *gin.Context) {
-	limit := int32(20)
-	offset := int32(0)
+	var limit int32
+	var offset int32
 
 	if v := c.Query("limit"); v != "" {
 		n, err := strconv.Atoi(v)
-		if err != nil || n <= 0 {
+		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid limit"})
 			return
-		}
-		if n > 100 {
-			n = 100
 		}
 		limit = int32(n)
 	}
 
 	if v := c.Query("offset"); v != "" {
 		n, err := strconv.Atoi(v)
-		if err != nil || n < 0 {
+		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid offset"})
 			return
 		}
@@ -47,6 +45,10 @@ func (h *Handler) Handle(c *gin.Context) {
 
 	posts, err := h.service.ListPosts(c.Request.Context(), limit, offset)
 	if err != nil {
+		if errors.Is(err, appListPosts.ErrInvalidLimit) || errors.Is(err, appListPosts.ErrInvalidOffset) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
