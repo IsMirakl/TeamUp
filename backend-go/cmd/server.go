@@ -8,11 +8,13 @@ import (
 	postupdateapp "backend/internal/content/application/command/update_post"
 	postgetauthorapp "backend/internal/content/application/query/get_author_post"
 	postgetbyidapp "backend/internal/content/application/query/get_by_id"
+	postgetresponsesapp "backend/internal/content/application/query/get_post_responses"
 	postlistapp "backend/internal/content/application/query/list_posts"
 	postcreateinfra "backend/internal/content/infrastructure/persistence/create_post"
 	createpostresponseinfra "backend/internal/content/infrastructure/persistence/create_post_response"
 	postgetauthorinfra "backend/internal/content/infrastructure/persistence/get_author_post"
 	postgetbyidinfra "backend/internal/content/infrastructure/persistence/get_by_id"
+	postgetresponsesinfra "backend/internal/content/infrastructure/persistence/get_post_responses"
 	postlistinfra "backend/internal/content/infrastructure/persistence/list_posts"
 	postupdateinfra "backend/internal/content/infrastructure/persistence/update_post"
 	postroutes "backend/internal/content/interfaces/http"
@@ -20,6 +22,7 @@ import (
 	createpostresponse "backend/internal/content/interfaces/http/create_post_response"
 	getauthorpost "backend/internal/content/interfaces/http/get_author_post"
 	getpostbyid "backend/internal/content/interfaces/http/get_by_id"
+	getpostresponses "backend/internal/content/interfaces/http/get_post_responses"
 	listposts "backend/internal/content/interfaces/http/list_posts"
 	updatepost "backend/internal/content/interfaces/http/update_post"
 	sessionapp "backend/internal/identity/application/command/create_session"
@@ -125,6 +128,10 @@ func main() {
 	getPostByIdService := postgetbyidapp.NewService(getPostByIdRepo, log)
 	getPostByIdHandler := getpostbyid.NewHandler(getPostByIdService, log)
 
+	getPostResponsesRepo := postgetresponsesinfra.NewRepository(db.Queries)
+	getPostResponsesService := postgetresponsesapp.NewService(getPostResponsesRepo, log)
+	getPostResponsesHandler := getpostresponses.NewHandler(getPostResponsesService, log)
+
 	getAuthorPostRepo := postgetauthorinfra.NewRepository(db.Queries)
 	getAuthorPostService := postgetauthorapp.NewService(getAuthorPostRepo, log)
 	getAuthorPostHandler := getauthorpost.NewHandler(getAuthorPostService, log)
@@ -151,6 +158,7 @@ func main() {
 		createPostResponseHandler,
 		updatePostHandler,
 		getPostByIdHandler,
+		getPostResponsesHandler,
 		getAuthorPostHandler,
 		listPostsHandler,
 		userRouterContentParams,

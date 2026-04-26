@@ -5,6 +5,7 @@ import (
 	createpostresponse "backend/internal/content/interfaces/http/create_post_response"
 	getauthorpost "backend/internal/content/interfaces/http/get_author_post"
 	getbyid "backend/internal/content/interfaces/http/get_by_id"
+	getpostresponses "backend/internal/content/interfaces/http/get_post_responses"
 	listposts "backend/internal/content/interfaces/http/list_posts"
 	updatepost "backend/internal/content/interfaces/http/update_post"
 	auth "backend/internal/pkg/utils"
@@ -32,6 +33,7 @@ func PostRouter(
 	createPostResponseHandler *createpostresponse.Handler,
 	updateHandler *updatepost.Handler,
 	getByIdHandler *getbyid.Handler,
+	getPostResponsesHandler *getpostresponses.Handler,
 	getAuthorHandler *getauthorpost.Handler,
 	listPostsHandler *listposts.Handler,
 	params RouterParams,
@@ -41,6 +43,7 @@ func PostRouter(
 
 	posts.GET("/post", listPostsHandler.Handle)
 	posts.GET("/post/:id", getByIdHandler.Handle)
+	posts.GET("/post/:id/responses", getPostResponsesHandler.Handle)
 	posts.GET("/post/author/:authorId", getAuthorHandler.Handle)
 
 	protected := posts.Group("/")
