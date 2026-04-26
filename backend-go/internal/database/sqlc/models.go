@@ -97,6 +97,49 @@ func (ns NullRoles) Value() (driver.Value, error) {
 	return string(ns.Roles), nil
 }
 
+type StatusResponses string
+
+const (
+	StatusResponsesPending  StatusResponses = "pending"
+	StatusResponsesAccepted StatusResponses = "accepted"
+	StatusResponsesRejected StatusResponses = "rejected"
+)
+
+func (e *StatusResponses) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = StatusResponses(s)
+	case string:
+		*e = StatusResponses(s)
+	default:
+		return fmt.Errorf("unsupported scan type for StatusResponses: %T", src)
+	}
+	return nil
+}
+
+type NullStatusResponses struct {
+	StatusResponses StatusResponses
+	Valid           bool // Valid is true if StatusResponses is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatusResponses) Scan(value interface{}) error {
+	if value == nil {
+		ns.StatusResponses, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.StatusResponses.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatusResponses) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.StatusResponses), nil
+}
+
 type SubscriptionPlans string
 
 const (
@@ -156,6 +199,17 @@ type Post struct {
 	Description string
 	Tags        []string
 	AuthorID    pgtype.UUID
+}
+
+type PostResponse struct {
+	ResponseID pgtype.UUID
+	CreatedAt  pgtype.Timestamptz
+	UpdatedAt  pgtype.Timestamptz
+	DeletedAt  pgtype.Timestamptz
+	PostID     pgtype.UUID
+	UserID     pgtype.UUID
+	Message    string
+	Status     StatusResponses
 }
 
 type Session struct {

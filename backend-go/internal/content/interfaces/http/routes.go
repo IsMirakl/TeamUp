@@ -2,6 +2,7 @@ package contenthttp
 
 import (
 	createpost "backend/internal/content/interfaces/http/create_post"
+	createpostresponse "backend/internal/content/interfaces/http/create_post_response"
 	getauthorpost "backend/internal/content/interfaces/http/get_author_post"
 	getbyid "backend/internal/content/interfaces/http/get_by_id"
 	listposts "backend/internal/content/interfaces/http/list_posts"
@@ -28,6 +29,7 @@ func NewRouterParams(tokenService auth.TokenService, log *logrus.Logger) RouterP
 func PostRouter(
 	r *gin.RouterGroup,
 	createHandler *createpost.Handler,
+	createPostResponseHandler *createpostresponse.Handler,
 	updateHandler *updatepost.Handler,
 	getByIdHandler *getbyid.Handler,
 	getAuthorHandler *getauthorpost.Handler,
@@ -45,5 +47,6 @@ func PostRouter(
 	protected.Use(middleware.AuthMiddleware(params.tokenService, params.log))
 
 	protected.POST("/post", createHandler.Handle)
+	protected.POST("/post/:id/responses", createPostResponseHandler.Handle)
 	protected.PUT("/post/:id", updateHandler.Handle)
 }

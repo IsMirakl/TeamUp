@@ -4,17 +4,20 @@ import (
 	"time"
 
 	postcreateapp "backend/internal/content/application/command/create_post"
+	createpostresponseapp "backend/internal/content/application/command/create_post_response"
 	postupdateapp "backend/internal/content/application/command/update_post"
 	postgetauthorapp "backend/internal/content/application/query/get_author_post"
 	postgetbyidapp "backend/internal/content/application/query/get_by_id"
 	postlistapp "backend/internal/content/application/query/list_posts"
 	postcreateinfra "backend/internal/content/infrastructure/persistence/create_post"
+	createpostresponseinfra "backend/internal/content/infrastructure/persistence/create_post_response"
 	postgetauthorinfra "backend/internal/content/infrastructure/persistence/get_author_post"
 	postgetbyidinfra "backend/internal/content/infrastructure/persistence/get_by_id"
 	postlistinfra "backend/internal/content/infrastructure/persistence/list_posts"
 	postupdateinfra "backend/internal/content/infrastructure/persistence/update_post"
 	postroutes "backend/internal/content/interfaces/http"
 	createpost "backend/internal/content/interfaces/http/create_post"
+	createpostresponse "backend/internal/content/interfaces/http/create_post_response"
 	getauthorpost "backend/internal/content/interfaces/http/get_author_post"
 	getpostbyid "backend/internal/content/interfaces/http/get_by_id"
 	listposts "backend/internal/content/interfaces/http/list_posts"
@@ -134,6 +137,10 @@ func main() {
 	getProfileMeService := getmyprofileapp.NewPostService(getProfileMeRepo, log)
 	getMyProfileHandler := getmyprofile.NewProfileHandler(getProfileMeService, log)
 
+	createPostResponseRepo := createpostresponseinfra.NewRepository(db.Queries)
+	createPostResponseService := createpostresponseapp.NewService(createPostResponseRepo, log)
+	createPostResponseHandler := createpostresponse.NewHandler(createPostResponseService, log)
+
 	api := r.Group("/api")
 	userRouterIdentityParams := userroutes.NewRouterParams(tokenService, log)
 	userRouterContentParams := postroutes.NewRouterParams(tokenService, log)
@@ -141,6 +148,7 @@ func main() {
 	postroutes.PostRouter(
 		api,
 		createPostHandler,
+		createPostResponseHandler,
 		updatePostHandler,
 		getPostByIdHandler,
 		getAuthorPostHandler,
