@@ -6,6 +6,7 @@ const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 const CreatePostPage = lazy(() => import('../pages/CreatePostPage'));
+const PostPage = lazy(() => import('../pages/PostPage'));
 const MyPostsPage = lazy(() => import('../pages/MyPostsPage'));
 const PostResponsesPage = lazy(() => import('../pages/PostResponsesPage'));
 
@@ -25,6 +26,7 @@ const AppRouter: React.FC = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/posts/new" element={<CreatePostPage />} />
+          <Route path="/posts/:id" element={<PostPage />} />
           <Route path="/my/posts" element={<MyPostsPage />} />
           <Route path="/posts/:id/responses" element={<PostResponsesPage />} />
           <Route path="/home" element={<HomePage />} />

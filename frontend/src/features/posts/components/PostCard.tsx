@@ -1,24 +1,21 @@
 import { memo } from 'react';
+import { Link } from 'react-router-dom';
 import type { Post } from '../../../types/Post';
 import TagPill from './TagPill';
 
 type PostCardProps = {
   post: Post;
   activeTag: string | null;
-  expanded: boolean;
   responded: boolean;
   onToggleTag: (tag: string) => void;
-  onToggleExpanded: () => void;
   onRespond: () => void;
 };
 
 const PostCard = ({
   post,
   activeTag,
-  expanded,
   responded,
   onToggleTag,
-  onToggleExpanded,
   onRespond,
 }: PostCardProps) => {
   return (
@@ -27,9 +24,11 @@ const PostCard = ({
       <div className="relative">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="truncate text-lg font-semibold text-slate-900 transition group-hover:text-sky-800">
-            {post.title}
-          </h2>
+          <Link to={`/posts/${post.id}`} className="block">
+            <h2 className="truncate text-lg font-semibold text-slate-900 transition group-hover:text-sky-800">
+              {post.title}
+            </h2>
+          </Link>
           <p className="mt-2 text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase">
             {post.author ? `Автор: ${post.author}` : 'Автор: —'}
           </p>
@@ -37,16 +36,14 @@ const PostCard = ({
       </div>
 
       <p
-        className={`mt-3 text-sm leading-6 text-slate-700 ${
-          expanded ? '' : 'max-h-32 overflow-hidden'
-        }`}
+        className="mt-3 text-sm leading-6 text-slate-700 max-h-32 overflow-hidden"
       >
         {post.description}
       </p>
 
       {post.tags?.length ? (
         <div className="mt-4 flex flex-wrap gap-2">
-          {(expanded ? post.tags : post.tags.slice(0, 8)).map(tag => (
+          {post.tags.slice(0, 8).map(tag => (
             <TagPill
               key={`${post.id}-${tag}`}
               tag={tag}
@@ -58,13 +55,12 @@ const PostCard = ({
       ) : null}
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
+        <Link
           className="rounded-full border border-slate-200/80 bg-white/70 px-5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-white"
-          onClick={onToggleExpanded}
+          to={`/posts/${post.id}`}
         >
-          {expanded ? 'Свернуть' : 'Подробнее'}
-        </button>
+          Подробнее
+        </Link>
         <button
           type="button"
           className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800"

@@ -10,7 +10,6 @@ const HomePage = () => {
   const { posts, fetchPosts, isLoading, error } = usePost();
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
   const [respondedPostId, setRespondedPostId] = useState<string | null>(null);
   const [respondModalPost, setRespondModalPost] = useState<Post | null>(null);
 
@@ -29,6 +28,7 @@ const HomePage = () => {
   const handleToggleTag = useCallback((clicked: string) => {
     setActiveTag(prev => (prev === clicked ? null : clicked));
   }, []);
+
 
   const filteredPosts = useMemo(() => {
     const byTag = activeTag
@@ -114,12 +114,8 @@ const HomePage = () => {
                 key={post.id}
                 post={post}
                 activeTag={activeTag}
-                expanded={expandedPostId === post.id}
                 responded={respondedPostId === post.id}
                 onToggleTag={handleToggleTag}
-                onToggleExpanded={() =>
-                  setExpandedPostId(prev => (prev === post.id ? null : post.id))
-                }
                 onRespond={() => setRespondModalPost(post)}
               />
             ))}
