@@ -5,7 +5,7 @@ type PostCardProps = {
   post: Post;
   activeTag: string | null;
   expanded: boolean;
-  copied: boolean;
+  responded: boolean;
   onToggleTag: (tag: string) => void;
   onToggleExpanded: () => void;
   onRespond: () => void;
@@ -15,7 +15,7 @@ const PostCard = ({
   post,
   activeTag,
   expanded,
-  copied,
+  responded,
   onToggleTag,
   onToggleExpanded,
   onRespond,
@@ -69,10 +69,10 @@ const PostCard = ({
         >
           Откликнуться
         </button>
-        {copied ? (
-          <span className="text-xs font-semibold text-emerald-700">Скопировано</span>
+        {responded ? (
+          <span className="text-xs font-semibold text-emerald-700">Отклик отправлен</span>
         ) : (
-          <span className="text-xs text-slate-500">Кнопка копирует шаблон отклика</span>
+          <span className="text-xs text-slate-500">Отправьте сообщение автору</span>
         )}
       </div>
     </article>

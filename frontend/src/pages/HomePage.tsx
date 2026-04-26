@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
+import RespondModal from '../features/posts/components/RespondModal';
 import Header from '../components/Header';
 import PostCard from '../features/posts/components/PostCard';
 import PostsToolbar from '../features/posts/components/PostsToolbar';
 import { usePost } from '../hooks/usePost';
+import type { Post } from '../types/Post';
 
 const HomePage = () => {
   const { posts, fetchPosts, isLoading, error } = usePost();
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
-  const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
+  const [respondedPostId, setRespondedPostId] = useState<string | null>(null);
+  const [respondModalPost, setRespondModalPost] = useState<Post | null>(null);
 
   useEffect(() => {
     fetchPosts(50, 0);
@@ -105,34 +108,31 @@ const HomePage = () => {
                 post={post}
                 activeTag={activeTag}
                 expanded={expandedPostId === post.id}
-                copied={copiedPostId === post.id}
+                responded={respondedPostId === post.id}
                 onToggleTag={clicked =>
                   setActiveTag(prev => (prev === clicked ? null : clicked))
                 }
                 onToggleExpanded={() =>
                   setExpandedPostId(prev => (prev === post.id ? null : post.id))
                 }
-                onRespond={async () => {
-                  try {
-                    await navigator.clipboard.writeText(
-                      `Отклик на пост #${post.id}: ${post.title}`,
-                    );
-                    setCopiedPostId(post.id);
-                    window.setTimeout(() => {
-                      setCopiedPostId(current => (current === post.id ? null : current));
-                    }, 1400);
-                  } catch {
-                    setCopiedPostId(post.id);
-                    window.setTimeout(() => {
-                      setCopiedPostId(current => (current === post.id ? null : current));
-                    }, 1400);
-                  }
-                }}
+                onRespond={() => setRespondModalPost(post)}
               />
             ))}
           </div>
         )}
       </main>
+
+      <RespondModal
+        open={Boolean(respondModalPost)}
+        post={respondModalPost}
+        onClose={() => setRespondModalPost(null)}
+        onSent={postId => {
+          setRespondedPostId(postId);
+          window.setTimeout(() => {
+            setRespondedPostId(current => (current === postId ? null : current));
+          }, 2200);
+        }}
+      />
     </section>
   );
 };

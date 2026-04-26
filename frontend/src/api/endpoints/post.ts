@@ -47,4 +47,11 @@ export const postAPI = {
     const response = await api.get(`/api/v1/posts/post/${id}`);
     return normalizePost(response.data);
   },
+
+  respond: async (postId: string, message: string): Promise<unknown> => {
+    const response = await api.post(`/api/v1/posts/post/${postId}/responses`, {
+      message,
+    });
+    return response.data;
+  },
 };
