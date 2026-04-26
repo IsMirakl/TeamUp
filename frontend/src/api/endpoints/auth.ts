@@ -16,6 +16,7 @@ type UserApiResponse = {
 };
 
 const mapUserResponse = (data: UserApiResponse): User => ({
+  id: data.user_id,
   email: data.email,
   role: data.role as User['role'],
   name: data.name,

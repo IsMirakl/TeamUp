@@ -17,10 +17,10 @@ const MyPostsPage = () => {
   }, [fetchPosts, isAuthenticated]);
 
   const myPosts = useMemo(() => {
-    const name = user?.name?.trim();
-    if (!name) return [];
-    return posts.filter(p => (p.author ?? '').trim() === name);
-  }, [posts, user?.name]);
+    const userId = user?.id?.trim();
+    if (!userId) return [];
+    return posts.filter(p => (p.authorId ?? '').trim() === userId);
+  }, [posts, user?.id]);
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-amber-50 via-white to-sky-50">
@@ -82,7 +82,24 @@ const MyPostsPage = () => {
               </div>
             ) : null}
 
-            {!isLoading && !authLoading && myPosts.length === 0 ? (
+            {!isLoading && !authLoading && !user ? (
+              <div className="w-full max-w-2xl rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-xl ring-1 shadow-slate-900/10 ring-slate-900/5 backdrop-blur">
+                <p className="text-sm font-semibold text-slate-900">Сессия не найдена</p>
+                <p className="mt-2 text-sm text-slate-600">
+                  Войдите в аккаунт заново, чтобы увидеть свои посты.
+                </p>
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <Link
+                    className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold tracking-[0.15em] text-white uppercase shadow-lg shadow-slate-900/20 transition hover:bg-slate-800"
+                    to={'/login'}
+                  >
+                    Войти
+                  </Link>
+                </div>
+              </div>
+            ) : null}
+
+            {!isLoading && !authLoading && user && myPosts.length === 0 ? (
               <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-xl ring-1 shadow-slate-900/10 ring-slate-900/5 backdrop-blur">
                 <p className="text-sm font-semibold text-slate-900">Пока нет постов</p>
                 <p className="mt-2 text-sm text-slate-600">

@@ -30,11 +30,11 @@ const PostResponsesPage = () => {
   }, [fetchPost, id]);
 
   const isOwner = useMemo(() => {
-    const me = user?.name?.trim();
-    const author = post?.author?.trim();
-    if (!me || !author) return false;
-    return me === author;
-  }, [post?.author, user?.name]);
+    const userId = user?.id?.trim();
+    const authorId = post?.authorId?.trim();
+    if (!userId || !authorId) return false;
+    return userId === authorId;
+  }, [post?.authorId, user?.id]);
 
   useEffect(() => {
     if (!id) return;

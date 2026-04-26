@@ -23,6 +23,7 @@ SELECT
     p.title,
     p.description,
     p.tags,
+    p.author_id,
     COALESCE(NULLIF(u.name, ''), ('user-' || LEFT(p.author_id::text, 8)))::text AS author_name
 FROM posts p
 JOIN users u ON u.user_id = p.author_id
@@ -46,6 +47,7 @@ SELECT
     p.title,
     p.description,
     p.tags,
+    p.author_id,
     COALESCE(NULLIF(u.name, ''), ('user-' || LEFT(p.author_id::text, 8)))::text AS author_name
 FROM posts p
 JOIN users u ON u.user_id = p.author_id

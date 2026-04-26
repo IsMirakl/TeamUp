@@ -6,6 +6,13 @@ const normalizePost = (raw: unknown): Post => {
   const obj: Record<string, unknown> =
     typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
 
+  const authorIdRaw =
+    typeof obj.author_id === 'string'
+      ? obj.author_id
+      : typeof obj.authorId === 'string'
+        ? obj.authorId
+        : undefined;
+
   const authorRaw =
     typeof obj.author === 'string'
       ? obj.author
@@ -20,6 +27,7 @@ const normalizePost = (raw: unknown): Post => {
     title: String(obj.title ?? ''),
     description: String(obj.description ?? ''),
     tags: Array.isArray(obj.tags) ? (obj.tags as string[]) : [],
+    authorId: authorIdRaw,
     author: authorRaw,
   };
 };

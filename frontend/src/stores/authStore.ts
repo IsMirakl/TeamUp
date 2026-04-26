@@ -51,8 +51,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (data: LoginData) => {
     set({ isLoading: true, error: '' });
     try {
-      const response = await authAPI.login(data);
-      set({ user: response.user, isLoading: false });
+      await authAPI.login(data);
+      const ok = await get().checkAuth();
+      set({ isLoading: false });
+      if (!ok) {
+        set({ error: 'Failed to load user' });
+        return false;
+      }
       return true;
     } catch (err) {
       const message = getErrorMessage(err);
@@ -68,8 +73,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ error: 'Fill in all fields', isLoading: false });
         return false;
       }
-      const response = await authAPI.register(data);
-      set({ user: response.user, isLoading: false });
+      await authAPI.register(data);
+      const ok = await get().checkAuth();
+      set({ isLoading: false });
+      if (!ok) {
+        set({ error: 'Failed to load user' });
+        return false;
+      }
       return true;
     } catch (err) {
       const message = getErrorMessage(err);

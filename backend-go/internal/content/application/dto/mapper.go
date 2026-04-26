@@ -10,6 +10,7 @@ func ToPostResponse(post database.Post) *ResponsePostDTO {
 		Title:       post.Title,
 		Description: post.Description,
 		Tags:        post.Tags,
+		AuthorID:    post.AuthorID.String(),
 		Author:      "",
 	}
 }
@@ -20,6 +21,7 @@ func ToPostByIDResponse(post database.GetPostByIdRow) *ResponsePostDTO {
 		Title:       post.Title,
 		Description: post.Description,
 		Tags:        post.Tags,
+		AuthorID:    post.AuthorID.String(),
 		Author:      post.AuthorName,
 	}
 }
@@ -30,6 +32,7 @@ func ToPostUpdateResponse(post database.UpdatePostRow) *ResponsePostDTO {
 		Title:       post.Title,
 		Description: post.Description,
 		Tags:        post.Tags,
+		AuthorID:    "",
 		Author:      "",
 	}
 }
@@ -40,6 +43,7 @@ func ToPostResponses(posts database.Post) *ResponsePostDTO {
 		Title:       posts.Title,
 		Description: posts.Description,
 		Tags:        posts.Tags,
+		AuthorID:    posts.AuthorID.String(),
 		Author:      "",
 	}
 }
@@ -52,6 +56,7 @@ func ToPostListResponse(posts []database.ListPostsRow) []ResponsePostDTO {
 			Title:       post.Title,
 			Description: post.Description,
 			Tags:        post.Tags,
+			AuthorID:    post.AuthorID.String(),
 			Author:      post.AuthorName,
 		})
 	}

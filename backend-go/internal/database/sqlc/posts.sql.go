@@ -83,6 +83,7 @@ SELECT
     p.title,
     p.description,
     p.tags,
+    p.author_id,
     COALESCE(NULLIF(u.name, ''), ('user-' || LEFT(p.author_id::text, 8)))::text AS author_name
 FROM posts p
 JOIN users u ON u.user_id = p.author_id
@@ -95,6 +96,7 @@ type GetPostByIdRow struct {
 	Title       string
 	Description string
 	Tags        []string
+	AuthorID    pgtype.UUID
 	AuthorName  string
 }
 
@@ -106,6 +108,7 @@ func (q *Queries) GetPostById(ctx context.Context, id pgtype.UUID) (GetPostByIdR
 		&i.Title,
 		&i.Description,
 		&i.Tags,
+		&i.AuthorID,
 		&i.AuthorName,
 	)
 	return i, err
@@ -117,6 +120,7 @@ SELECT
     p.title,
     p.description,
     p.tags,
+    p.author_id,
     COALESCE(NULLIF(u.name, ''), ('user-' || LEFT(p.author_id::text, 8)))::text AS author_name
 FROM posts p
 JOIN users u ON u.user_id = p.author_id
@@ -135,6 +139,7 @@ type ListPostsRow struct {
 	Title       string
 	Description string
 	Tags        []string
+	AuthorID    pgtype.UUID
 	AuthorName  string
 }
 
@@ -152,6 +157,7 @@ func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]ListPos
 			&i.Title,
 			&i.Description,
 			&i.Tags,
+			&i.AuthorID,
 			&i.AuthorName,
 		); err != nil {
 			return nil, err
