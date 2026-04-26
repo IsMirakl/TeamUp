@@ -13,6 +13,7 @@ type UpdatePostDTO struct {
 }
 
 type CreatePostResponseDTO struct {
-	PostID  string `json:"post_id" validate:"required"`
-	Message string `json:"message" validate:"required,max=1000"`
+	PostID   string `json:"post_id" validate:"required"`
+	Message  string `json:"message" validate:"required,max=1000"`
+	Telegram string `json:"telegram" validate:"required,max=128"`
 }

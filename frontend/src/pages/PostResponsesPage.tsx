@@ -12,6 +12,16 @@ const formatDateTime = (value: string) => {
   return d.toLocaleString();
 };
 
+const toTelegramHref = (value: string) => {
+  const v = value.trim();
+  if (!v) return '';
+  if (v.startsWith('@')) return `https://t.me/${v.slice(1)}`;
+  if (v.startsWith('https://') || v.startsWith('http://')) return v;
+  if (v.startsWith('t.me/')) return `https://${v}`;
+  if (v.startsWith('telegram.me/')) return `https://${v}`;
+  return v;
+};
+
 const PostResponsesPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -177,6 +187,16 @@ const PostResponsesPage = () => {
                           {r.name || 'Пользователь'}
                         </p>
                         <p className="truncate text-xs text-slate-600">{r.email || '—'}</p>
+                        {r.telegram ? (
+                          <a
+                            href={toTelegramHref(r.telegram)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2 inline-flex text-xs font-semibold text-sky-800 underline decoration-sky-300 underline-offset-4 hover:text-sky-900"
+                          >
+                            {r.telegram}
+                          </a>
+                        ) : null}
                         <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
                           {r.message}
                         </p>

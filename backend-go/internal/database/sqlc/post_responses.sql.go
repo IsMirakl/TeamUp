@@ -15,16 +15,18 @@ const createPostResponse = `-- name: CreatePostResponse :one
 INSERT INTO post_responses (
     post_id,
     user_id,
-    message
+    message,
+    telegram
 ) VALUES (
-    $1, $2, $3
-) RETURNING response_id, post_id, user_id, message, status, created_at, updated_at
+    $1, $2, $3, $4
+) RETURNING response_id, post_id, user_id, message, telegram, status, created_at, updated_at
 `
 
 type CreatePostResponseParams struct {
-	PostID  pgtype.UUID
-	UserID  pgtype.UUID
-	Message string
+	PostID   pgtype.UUID
+	UserID   pgtype.UUID
+	Message  string
+	Telegram pgtype.Text
 }
 
 type CreatePostResponseRow struct {
@@ -32,19 +34,26 @@ type CreatePostResponseRow struct {
 	PostID     pgtype.UUID
 	UserID     pgtype.UUID
 	Message    string
+	Telegram   pgtype.Text
 	Status     StatusResponses
 	CreatedAt  pgtype.Timestamptz
 	UpdatedAt  pgtype.Timestamptz
 }
 
 func (q *Queries) CreatePostResponse(ctx context.Context, arg CreatePostResponseParams) (CreatePostResponseRow, error) {
-	row := q.db.QueryRow(ctx, createPostResponse, arg.PostID, arg.UserID, arg.Message)
+	row := q.db.QueryRow(ctx, createPostResponse,
+		arg.PostID,
+		arg.UserID,
+		arg.Message,
+		arg.Telegram,
+	)
 	var i CreatePostResponseRow
 	err := row.Scan(
 		&i.ResponseID,
 		&i.PostID,
 		&i.UserID,
 		&i.Message,
+		&i.Telegram,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -58,6 +67,7 @@ SELECT
     r.post_id, 
     r.user_id, 
     r.message, 
+    r.telegram,
     r.status, 
     r.created_at, 
     r.updated_at,
@@ -75,6 +85,7 @@ type GetPostResponsesRow struct {
 	PostID     pgtype.UUID
 	UserID     pgtype.UUID
 	Message    string
+	Telegram   pgtype.Text
 	Status     StatusResponses
 	CreatedAt  pgtype.Timestamptz
 	UpdatedAt  pgtype.Timestamptz
@@ -97,6 +108,7 @@ func (q *Queries) GetPostResponses(ctx context.Context, postID pgtype.UUID) ([]G
 			&i.PostID,
 			&i.UserID,
 			&i.Message,
+			&i.Telegram,
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,

@@ -44,8 +44,9 @@ func (s *Service) Create(ctx context.Context, userID string, dto *dto.CreatePost
 			Bytes: postID,
 			Valid: true,
 		},
-		UserID:  pgtype.UUID{Bytes: userUUID, Valid: true},
-		Message: dto.Message,
+		UserID:   pgtype.UUID{Bytes: userUUID, Valid: true},
+		Message:  dto.Message,
+		Telegram: pgtype.Text{String: dto.Telegram, Valid: dto.Telegram != ""},
 	}
 
 	response, err := s.repository.Create(ctx, params)

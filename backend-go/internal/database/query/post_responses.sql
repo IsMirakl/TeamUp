@@ -2,10 +2,11 @@
 INSERT INTO post_responses (
     post_id,
     user_id,
-    message
+    message,
+    telegram
 ) VALUES (
-    $1, $2, $3
-) RETURNING response_id, post_id, user_id, message, status, created_at, updated_at;
+    $1, $2, $3, $4
+) RETURNING response_id, post_id, user_id, message, telegram, status, created_at, updated_at;
 
 -- name: GetPostResponses :many
 SELECT 
@@ -13,6 +14,7 @@ SELECT
     r.post_id, 
     r.user_id, 
     r.message, 
+    r.telegram,
     r.status, 
     r.created_at, 
     r.updated_at,

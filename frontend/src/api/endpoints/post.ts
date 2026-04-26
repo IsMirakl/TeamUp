@@ -64,9 +64,10 @@ export const postAPI = {
       : [];
   },
 
-  respond: async (postId: string, message: string): Promise<unknown> => {
+  respond: async (postId: string, message: string, telegram: string): Promise<unknown> => {
     const response = await api.post(`/api/v1/posts/post/${postId}/responses`, {
       message,
+      telegram,
     });
     return response.data;
   },
@@ -81,6 +82,10 @@ const normalizePostResponse = (raw: unknown): PostResponse => {
       const v = obj[key];
       if (typeof v === 'string') return v;
       if (typeof v === 'number') return String(v);
+      if (typeof v === 'object' && v !== null && 'String' in v) {
+        const s = (v as { String?: unknown }).String;
+        if (typeof s === 'string') return s;
+      }
     }
     return '';
   };
@@ -90,6 +95,11 @@ const normalizePostResponse = (raw: unknown): PostResponse => {
       const v = obj[key];
       if (typeof v === 'string') return v;
       if (v === null) return null;
+      if (typeof v === 'object' && v !== null && 'Valid' in v) {
+        const cast = v as { String?: unknown; Valid?: unknown };
+        if (cast.Valid === false) return null;
+        if (typeof cast.String === 'string') return cast.String;
+      }
     }
     return null;
   };
@@ -99,6 +109,7 @@ const normalizePostResponse = (raw: unknown): PostResponse => {
     postId: readString('post_id', 'postId', 'PostID', 'PostId'),
     userId: readString('user_id', 'userId', 'UserID', 'UserId'),
     message: readString('message', 'Message'),
+    telegram: readNullableString('telegram', 'Telegram'),
     status: readString('status', 'Status'),
     createdAt: readString('created_at', 'createdAt', 'CreatedAt'),
     updatedAt: readString('updated_at', 'updatedAt', 'UpdatedAt'),

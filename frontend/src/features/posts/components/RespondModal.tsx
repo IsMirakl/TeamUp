@@ -24,6 +24,7 @@ const getErrorMessage = (err: unknown) => {
 
 const RespondModal = ({ open, post, onClose, onSent }: RespondModalProps) => {
   const [message, setMessage] = useState('');
+  const [telegram, setTelegram] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -34,6 +35,7 @@ const RespondModal = ({ open, post, onClose, onSent }: RespondModalProps) => {
     if (!open) return;
     setError(null);
     setIsSending(false);
+    setTelegram('');
     window.setTimeout(() => textareaRef.current?.focus(), 0);
   }, [open]);
 
@@ -54,6 +56,12 @@ const RespondModal = ({ open, post, onClose, onSent }: RespondModalProps) => {
     e.preventDefault();
     if (!isAuthed) return;
 
+    const telegramTrimmed = telegram.trim();
+    if (!telegramTrimmed) {
+      setError('Оставьте Telegram для связи');
+      return;
+    }
+
     const trimmed = message.trim();
     if (!trimmed) {
       setError('Напишите сообщение для автора');
@@ -67,7 +75,7 @@ const RespondModal = ({ open, post, onClose, onSent }: RespondModalProps) => {
     setIsSending(true);
     setError(null);
     try {
-      await postAPI.respond(post.id, trimmed);
+      await postAPI.respond(post.id, trimmed, telegramTrimmed);
       setMessage('');
       onSent?.(post.id);
       onClose();
@@ -127,8 +135,25 @@ const RespondModal = ({ open, post, onClose, onSent }: RespondModalProps) => {
         ) : (
           <form onSubmit={handleSubmit} className="px-6 py-6">
             <label
-              htmlFor="response-message"
+              htmlFor="response-telegram"
               className="block text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase"
+            >
+              Telegram
+            </label>
+            <input
+              id="response-telegram"
+              value={telegram}
+              onChange={e => setTelegram(e.target.value)}
+              maxLength={128}
+              placeholder="@username или https://t.me/username"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-base text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-sky-300 focus:ring-4 focus:ring-sky-100/70 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100"
+              disabled={isSending}
+              required
+            />
+
+            <label
+              htmlFor="response-message"
+              className="mt-5 block text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase"
             >
               Сообщение
             </label>

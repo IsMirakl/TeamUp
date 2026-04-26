@@ -210,6 +210,7 @@ type PostResponse struct {
 	UserID     pgtype.UUID
 	Message    string
 	Status     StatusResponses
+	Telegram   pgtype.Text
 }
 
 type Session struct {

@@ -3,6 +3,7 @@ export interface PostResponse {
   postId: string;
   userId: string;
   message: string;
+  telegram: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;

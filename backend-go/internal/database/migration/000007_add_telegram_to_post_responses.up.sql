@@ -1,0 +1,2 @@
+ALTER TABLE post_responses
+ADD COLUMN IF NOT EXISTS telegram TEXT;
