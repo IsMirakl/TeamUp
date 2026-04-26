@@ -26,7 +26,13 @@ func NewService(repository Repository, log *logrus.Logger) *Service {
 	}
 }
 
-func (s *Service) Create(ctx context.Context, userID pgtype.UUID, dto *dto.CreatePostResponseDTO) (*database.CreatePostResponseRow, error) {
+func (s *Service) Create(ctx context.Context, userID string, dto *dto.CreatePostResponseDTO) (*database.CreatePostResponseRow, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		s.log.WithError(err).WithField("user_id", userID).Error("Invalid user_id")
+		return nil, err
+	}
+
 	postID, err := uuid.Parse(dto.PostID)
 	if err != nil {
 		s.log.WithError(err).WithField("post_id", dto.PostID).Error("Invalid post_id")
@@ -38,7 +44,7 @@ func (s *Service) Create(ctx context.Context, userID pgtype.UUID, dto *dto.Creat
 			Bytes: postID,
 			Valid: true,
 		},
-		UserID:  userID,
+		UserID:  pgtype.UUID{Bytes: userUUID, Valid: true},
 		Message: dto.Message,
 	}
 
