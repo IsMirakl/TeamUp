@@ -1,0 +1,297 @@
+?   	backend/cmd	[no test files]
+=== RUN   TestCreatePost_InvalidUserID
+time="2026-04-27T15:58:44+03:00" level=error msg="invalid user_id" error="invalid UUID length: 3" user_id=bad
+--- PASS: TestCreatePost_InvalidUserID (0.00s)
+=== RUN   TestCreatePost_Success
+time="2026-04-27T15:58:44+03:00" level=info msg="Creating post" title_post=title
+time="2026-04-27T15:58:44+03:00" level=info msg="Post successfully created" post_ID=97176dc9-3e22-44da-a22c-102d1592f68f
+--- PASS: TestCreatePost_Success (0.00s)
+=== RUN   TestCreatePost_RepositoryError
+time="2026-04-27T15:58:44+03:00" level=info msg="Creating post" title_post=t
+time="2026-04-27T15:58:44+03:00" level=error msg="Failed create post" error="db error" post_ID=
+--- PASS: TestCreatePost_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/content/application/command/create_post	0.740s
+=== RUN   TestCreatePostResponse_InvalidUserID
+time="2026-04-27T15:58:45+03:00" level=error msg="Invalid user_id" error="invalid UUID length: 3" user_id=bad
+--- PASS: TestCreatePostResponse_InvalidUserID (0.00s)
+=== RUN   TestCreatePostResponse_InvalidPostID
+time="2026-04-27T15:58:45+03:00" level=error msg="Invalid post_id" error="invalid UUID length: 3" post_id=bad
+--- PASS: TestCreatePostResponse_InvalidPostID (0.00s)
+=== RUN   TestCreatePostResponse_Success_TelegramOptional
+--- PASS: TestCreatePostResponse_Success_TelegramOptional (0.00s)
+=== RUN   TestCreatePostResponse_RepositoryError
+time="2026-04-27T15:58:45+03:00" level=error msg="failed to create post response" error="db error"
+--- PASS: TestCreatePostResponse_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/content/application/command/create_post_response	1.989s
+=== RUN   TestUpdatePost_InvalidPostID
+time="2026-04-27T15:58:44+03:00" level=error msg="invalid post id" error="invalid UUID length: 3" post_id=bad
+--- PASS: TestUpdatePost_InvalidPostID (0.00s)
+=== RUN   TestUpdatePost_Success
+time="2026-04-27T15:58:44+03:00" level=info msg="updating post" post_id=57650bb6-3551-49dc-909d-bc2056fa3476
+--- PASS: TestUpdatePost_Success (0.00s)
+=== RUN   TestUpdatePost_RepositoryError
+time="2026-04-27T15:58:44+03:00" level=info msg="updating post" post_id=5642235c-af00-45d8-ba67-b69b287a24e7
+time="2026-04-27T15:58:44+03:00" level=error msg="failed update post" error="db error" post_id=5642235c-af00-45d8-ba67-b69b287a24e7
+--- PASS: TestUpdatePost_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/content/application/command/update_post	1.351s
+?   	backend/internal/content/application/dto	[no test files]
+=== RUN   TestGetAuthorPost_Success
+time="2026-04-27T15:58:46+03:00" level=info msg="GetByAuthor called" author_id=author
+--- PASS: TestGetAuthorPost_Success (0.00s)
+=== RUN   TestGetAuthorPost_RepositoryError
+time="2026-04-27T15:58:46+03:00" level=info msg="GetByAuthor called" author_id=author
+time="2026-04-27T15:58:46+03:00" level=error msg="Failed to get author post" author_id=author error="db error"
+--- PASS: TestGetAuthorPost_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/content/application/query/get_author_post	3.209s
+=== RUN   TestGetPostById_InvalidUUID
+time="2026-04-27T15:58:47+03:00" level=info msg="GetById called" post_id=bad
+time="2026-04-27T15:58:47+03:00" level=error msg="failed to parse userID" error="invalid UUID length: 3" userID=bad
+--- PASS: TestGetPostById_InvalidUUID (0.00s)
+=== RUN   TestGetPostById_Success
+time="2026-04-27T15:58:47+03:00" level=info msg="GetById called" post_id=49ad386e-ce14-4ccf-b78b-55a1f763f542
+time="2026-04-27T15:58:47+03:00" level=info msg="post fetched successfully" post_id=49ad386e-ce14-4ccf-b78b-55a1f763f542
+--- PASS: TestGetPostById_Success (0.00s)
+=== RUN   TestGetPostById_RepositoryError
+time="2026-04-27T15:58:47+03:00" level=info msg="GetById called" post_id=c1852896-f7f1-4e8b-adf5-3436848fa15e
+time="2026-04-27T15:58:47+03:00" level=error msg="failed to get post from repository" error="db error" post_id=c1852896-f7f1-4e8b-adf5-3436848fa15e
+--- PASS: TestGetPostById_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/content/application/query/get_by_id	3.746s
+=== RUN   TestGetPostResponses_InvalidPostID
+time="2026-04-27T15:58:45+03:00" level=info msg="GetPostResponses called" post_id=bad
+time="2026-04-27T15:58:45+03:00" level=error msg="failed to parse post_id" error="invalid UUID length: 3" post_id=bad
+--- PASS: TestGetPostResponses_InvalidPostID (0.00s)
+=== RUN   TestGetPostResponses_Success
+time="2026-04-27T15:58:45+03:00" level=info msg="GetPostResponses called" post_id=3ff97e4c-d7b0-4409-b1ca-3dec423214cd
+--- PASS: TestGetPostResponses_Success (0.00s)
+=== RUN   TestGetPostResponses_RepositoryError
+time="2026-04-27T15:58:45+03:00" level=info msg="GetPostResponses called" post_id=cf1b1313-83b6-4549-b6f6-6facdbf905d3
+time="2026-04-27T15:58:45+03:00" level=error msg="failed to get post responses" error="db error" post_id=cf1b1313-83b6-4549-b6f6-6facdbf905d3
+--- PASS: TestGetPostResponses_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/content/application/query/get_post_responses	2.499s
+=== RUN   TestListPosts_DefaultLimit
+time="2026-04-27T15:58:47+03:00" level=info msg="ListPosts called" limit=20 offset=0
+--- PASS: TestListPosts_DefaultLimit (0.00s)
+=== RUN   TestListPosts_ClampLimit
+time="2026-04-27T15:58:47+03:00" level=info msg="ListPosts called" limit=100 offset=0
+--- PASS: TestListPosts_ClampLimit (0.00s)
+=== RUN   TestListPosts_InvalidLimit
+--- PASS: TestListPosts_InvalidLimit (0.00s)
+=== RUN   TestListPosts_InvalidOffset
+--- PASS: TestListPosts_InvalidOffset (0.00s)
+=== RUN   TestListPosts_RepositoryError
+time="2026-04-27T15:58:47+03:00" level=info msg="ListPosts called" limit=10 offset=0
+time="2026-04-27T15:58:47+03:00" level=error msg="Failed to list posts" error="db error"
+--- PASS: TestListPosts_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/content/application/query/list_posts	4.421s
+?   	backend/internal/content/domain/model	[no test files]
+?   	backend/internal/content/infrastructure/persistence/create_post	[no test files]
+?   	backend/internal/content/infrastructure/persistence/create_post_response	[no test files]
+?   	backend/internal/content/infrastructure/persistence/get_author_post	[no test files]
+?   	backend/internal/content/infrastructure/persistence/get_by_id	[no test files]
+?   	backend/internal/content/infrastructure/persistence/get_post_responses	[no test files]
+?   	backend/internal/content/infrastructure/persistence/list_posts	[no test files]
+?   	backend/internal/content/infrastructure/persistence/update_post	[no test files]
+?   	backend/internal/content/interfaces/http	[no test files]
+?   	backend/internal/content/interfaces/http/create_post	[no test files]
+?   	backend/internal/content/interfaces/http/create_post_response	[no test files]
+?   	backend/internal/content/interfaces/http/get_author_post	[no test files]
+?   	backend/internal/content/interfaces/http/get_by_id	[no test files]
+?   	backend/internal/content/interfaces/http/get_post_responses	[no test files]
+?   	backend/internal/content/interfaces/http/list_posts	[no test files]
+?   	backend/internal/content/interfaces/http/update_post	[no test files]
+?   	backend/internal/database/sqlc	[no test files]
+=== RUN   TestCreateSession_Success
+--- PASS: TestCreateSession_Success (0.00s)
+=== RUN   TestCreateSession_InvalidUserID
+time="2026-04-27T15:58:48+03:00" level=error msg="invalid user_id" error="invalid UUID length: 11" user_id=bad-user-id
+--- PASS: TestCreateSession_InvalidUserID (0.00s)
+=== RUN   TestCreateSession_RepositoryError
+time="2026-04-27T15:58:48+03:00" level=error msg="failed to create session" error="database error"
+--- PASS: TestCreateSession_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/identity/application/command/create_session	4.619s
+?   	backend/internal/identity/application/command/create_session/mocks	[no test files]
+=== RUN   TestLoginUserNotFound
+time="2026-04-22T17:18:11+03:00" level=info msg="login request received" email=test@gmail.com
+time="2026-04-22T17:18:11+03:00" level=warning msg="user not found"
+--- PASS: TestLoginUserNotFound (0.00s)
+=== RUN   TestLoginRepositoryError
+time="2026-04-22T17:18:11+03:00" level=info msg="login request received" email=test@gmail.com
+time="2026-04-22T17:18:11+03:00" level=error msg="failed to fetch user by email" error="database error"
+--- PASS: TestLoginRepositoryError (0.00s)
+=== RUN   TestLoginInvalidPassword
+time="2026-04-22T17:18:11+03:00" level=info msg="login request received" email=test@gmail.com
+time="2026-04-22T17:18:11+03:00" level=warning msg="invalid password"
+--- PASS: TestLoginInvalidPassword (0.14s)
+=== RUN   TestLoginSuccess
+time="2026-04-22T17:18:11+03:00" level=info msg="login request received" email=test@gmail.com
+time="2026-04-22T17:18:11+03:00" level=info msg="login successful" email=test@gmail.com
+--- PASS: TestLoginSuccess (0.14s)
+PASS
+ok  	backend/internal/identity/application/command/login_user	(cached)
+?   	backend/internal/identity/application/command/login_user/mocks	[no test files]
+=== RUN   TestRefreshSession_InvalidToken_Unauthorized
+time="2026-04-27T15:58:49+03:00" level=warning msg="Invalid refresh token" error="bad token"
+--- PASS: TestRefreshSession_InvalidToken_Unauthorized (0.00s)
+=== RUN   TestRefreshSession_SessionBlocked_Unauthorized
+time="2026-04-27T15:58:49+03:00" level=warning msg="session is blocked"
+--- PASS: TestRefreshSession_SessionBlocked_Unauthorized (0.00s)
+=== RUN   TestRefreshSession_UserMismatch_Unauthorized
+time="2026-04-27T15:58:49+03:00" level=warning msg="refresh token user mismatch" session_user_id=eb152dc5-b852-4504-9742-33d465dba385 token_user_id=bb997095-664b-4184-9c53-7fb170922c5d
+--- PASS: TestRefreshSession_UserMismatch_Unauthorized (0.00s)
+=== RUN   TestRefreshSession_Expired_Unauthorized
+time="2026-04-27T15:58:49+03:00" level=warning msg="refresh token expired"
+--- PASS: TestRefreshSession_Expired_Unauthorized (0.00s)
+=== RUN   TestRefreshSession_Success
+--- PASS: TestRefreshSession_Success (0.00s)
+=== RUN   TestRefreshSession_UpdateFails_Unauthorized
+time="2026-04-27T15:58:49+03:00" level=error msg="failed to update session refresh token" error="db error"
+--- PASS: TestRefreshSession_UpdateFails_Unauthorized (0.00s)
+PASS
+ok  	backend/internal/identity/application/command/refresh_session	4.614s
+=== RUN   TestRegisterUser_Success_NoAvatar
+time="2026-04-27T15:58:50+03:00" level=info msg="creating user" email=test@example.com
+time="2026-04-27T15:58:50+03:00" level=info msg="user successfully created" email=test@example.com user_id=754baa0b-567c-4efa-8bd4-df5b83ab6df2
+--- PASS: TestRegisterUser_Success_NoAvatar (0.16s)
+=== RUN   TestRegisterUser_RepositoryError
+time="2026-04-27T15:58:50+03:00" level=info msg="creating user" email=test@example.com
+time="2026-04-27T15:58:50+03:00" level=error msg="failed to create user" email=test@example.com error="db error" user_id=cd1ebc1a-4d32-4769-9f52-3f8cec89a15b
+--- PASS: TestRegisterUser_RepositoryError (0.10s)
+=== RUN   TestRegisterUser_CreateSessionError
+time="2026-04-27T15:58:50+03:00" level=info msg="creating user" email=test@example.com
+time="2026-04-27T15:58:50+03:00" level=error msg="failed to create session" error="session error"
+--- PASS: TestRegisterUser_CreateSessionError (0.10s)
+PASS
+ok  	backend/internal/identity/application/command/register_user	5.487s
+=== RUN   TestRevokeSession_EmptyToken
+time="2026-04-27T15:58:50+03:00" level=error msg="refresh token is empty"
+--- PASS: TestRevokeSession_EmptyToken (0.00s)
+=== RUN   TestRevokeSession_RepositoryError
+time="2026-04-27T15:58:50+03:00" level=error msg="failed to revoke session" error="db error"
+--- PASS: TestRevokeSession_RepositoryError (0.00s)
+=== RUN   TestRevokeSession_Success
+--- PASS: TestRevokeSession_Success (0.00s)
+PASS
+ok  	backend/internal/identity/application/command/revoke_session	5.528s
+?   	backend/internal/identity/application/dto	[no test files]
+=== RUN   TestGetByEmail_Success
+time="2026-04-27T15:58:51+03:00" level=info msg="getting user by email" email=test@example.com
+--- PASS: TestGetByEmail_Success (0.00s)
+=== RUN   TestGetByEmail_RepositoryError
+time="2026-04-27T15:58:51+03:00" level=info msg="getting user by email" email=test@example.com
+time="2026-04-27T15:58:51+03:00" level=warning msg="failed to get user by email" error="db error"
+--- PASS: TestGetByEmail_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/identity/application/query/get_by_email	4.925s
+=== RUN   TestGetById_InvalidUUID
+time="2026-04-27T15:58:52+03:00" level=info msg="GetById called" userID=bad
+time="2026-04-27T15:58:52+03:00" level=error msg="failed to parse userID" error="invalid UUID length: 3" userID=bad
+--- PASS: TestGetById_InvalidUUID (0.00s)
+=== RUN   TestGetById_Success
+time="2026-04-27T15:58:52+03:00" level=info msg="GetById called" userID=4464547b-a720-4026-a610-c18fb3b3c683
+time="2026-04-27T15:58:52+03:00" level=info msg="user fetched successfully" userID=4464547b-a720-4026-a610-c18fb3b3c683
+--- PASS: TestGetById_Success (0.00s)
+=== RUN   TestGetById_RepositoryError
+time="2026-04-27T15:58:52+03:00" level=info msg="GetById called" userID=b5f33b5e-a129-49b1-9597-4f99e00940f2
+time="2026-04-27T15:58:52+03:00" level=error msg="failed to get user from repository" error="db error" userID=b5f33b5e-a129-49b1-9597-4f99e00940f2
+--- PASS: TestGetById_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/identity/application/query/get_by_id	5.043s
+=== RUN   TestGetMe_InvalidUUID
+time="2026-04-27T15:58:52+03:00" level=info msg="GetMe called" userID=bad
+time="2026-04-27T15:58:52+03:00" level=error msg="failed to parse userID" error="invalid UUID length: 3" userID=bad
+--- PASS: TestGetMe_InvalidUUID (0.00s)
+=== RUN   TestGetMe_Success
+time="2026-04-27T15:58:52+03:00" level=info msg="GetMe called" userID=a7b0714a-791c-4581-b5b1-9d2d905dcf11
+time="2026-04-27T15:58:52+03:00" level=info msg="profile fetched successfully" userID=a7b0714a-791c-4581-b5b1-9d2d905dcf11
+--- PASS: TestGetMe_Success (0.00s)
+=== RUN   TestGetMe_RepositoryError
+time="2026-04-27T15:58:52+03:00" level=info msg="GetMe called" userID=1d6a7d26-5db8-47fc-9fb9-7e4258157f27
+time="2026-04-27T15:58:52+03:00" level=error msg="failed to get profile from repository" error="db error" userID=1d6a7d26-5db8-47fc-9fb9-7e4258157f27
+--- PASS: TestGetMe_RepositoryError (0.00s)
+PASS
+ok  	backend/internal/identity/application/query/get_my_profile	4.934s
+?   	backend/internal/identity/domain/model	[no test files]
+?   	backend/internal/identity/infrastructure/persistence/create_session	[no test files]
+?   	backend/internal/identity/infrastructure/persistence/get_by_email	[no test files]
+?   	backend/internal/identity/infrastructure/persistence/get_by_id	[no test files]
+?   	backend/internal/identity/infrastructure/persistence/get_my_profile	[no test files]
+?   	backend/internal/identity/infrastructure/persistence/login_user	[no test files]
+?   	backend/internal/identity/infrastructure/persistence/refresh_session	[no test files]
+?   	backend/internal/identity/infrastructure/persistence/register_user	[no test files]
+?   	backend/internal/identity/infrastructure/persistence/revoke_session	[no test files]
+?   	backend/internal/identity/interfaces/http	[no test files]
+?   	backend/internal/identity/interfaces/http/create_session	[no test files]
+?   	backend/internal/identity/interfaces/http/get_by_email	[no test files]
+?   	backend/internal/identity/interfaces/http/get_by_id	[no test files]
+?   	backend/internal/identity/interfaces/http/get_my_profile	[no test files]
+?   	backend/internal/identity/interfaces/http/login_user	[no test files]
+?   	backend/internal/identity/interfaces/http/refresh_session	[no test files]
+?   	backend/internal/identity/interfaces/http/register_user	[no test files]
+?   	backend/internal/identity/interfaces/http/revoke_session	[no test files]
+?   	backend/internal/pkg/config	[no test files]
+?   	backend/internal/pkg/logger	[no test files]
+=== RUN   TestGenerateAccessToken_Success
+--- PASS: TestGenerateAccessToken_Success (0.00s)
+=== RUN   TestValidateAccessToken_Success
+--- PASS: TestValidateAccessToken_Success (0.00s)
+=== RUN   TestGenerateRefreshToken_Success
+time="2026-04-27T15:58:53+03:00" level=info msg="refresh token generated" user_id=user-123
+--- PASS: TestGenerateRefreshToken_Success (0.00s)
+=== RUN   TestValidateRefreshToken_Success
+time="2026-04-27T15:58:53+03:00" level=info msg="refresh token generated" user_id=user-123
+--- PASS: TestValidateRefreshToken_Success (0.00s)
+=== RUN   TestValidateAccessToken_InvalidSignature
+--- PASS: TestValidateAccessToken_InvalidSignature (0.00s)
+=== RUN   TestValidateRefreshToken_InvalidSignature
+time="2026-04-27T15:58:53+03:00" level=info msg="refresh token generated" user_id=user-123
+--- PASS: TestValidateRefreshToken_InvalidSignature (0.00s)
+PASS
+ok  	backend/internal/pkg/utils	4.815s
+?   	backend/internal/pkg/utils/mocks	[no test files]
+?   	backend/internal/pkg/validation	[no test files]
+?   	backend/internal/shared/errors	[no test files]
+=== RUN   TestAuthMiddleware_Success
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /test                     --> backend/internal/shared/middleware_test.TestAuthMiddleware_Success.func1 (2 handlers)
+time="2026-04-27T15:58:53+03:00" level=info msg="auth middleware triggered"
+--- PASS: TestAuthMiddleware_Success (0.00s)
+=== RUN   TestAuthMiddleware_NoHeader
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /test                     --> backend/internal/shared/middleware_test.TestAuthMiddleware_NoHeader.func1 (2 handlers)
+time="2026-04-27T15:58:53+03:00" level=info msg="auth middleware triggered"
+time="2026-04-27T15:58:53+03:00" level=warning msg="missing Authorization header"
+--- PASS: TestAuthMiddleware_NoHeader (0.00s)
+=== RUN   TestAuthMiddleware_NoCorrectFormat
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /test                     --> backend/internal/shared/middleware_test.TestAuthMiddleware_NoCorrectFormat.func1 (2 handlers)
+time="2026-04-27T15:58:53+03:00" level=info msg="auth middleware triggered"
+time="2026-04-27T15:58:53+03:00" level=warning msg="invalid Authorization header format"
+--- PASS: TestAuthMiddleware_NoCorrectFormat (0.00s)
+=== RUN   TestAuthMiddleware_InvalidToke
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /test                     --> backend/internal/shared/middleware_test.TestAuthMiddleware_InvalidToke.func1 (2 handlers)
+time="2026-04-27T15:58:53+03:00" level=info msg="auth middleware triggered"
+time="2026-04-27T15:58:53+03:00" level=warning msg="invalid Authorization header format"
+--- PASS: TestAuthMiddleware_InvalidToke (0.00s)
+PASS
+ok  	backend/internal/shared/middleware	3.205s
