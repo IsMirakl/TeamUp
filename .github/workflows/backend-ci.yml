@@ -1,4 +1,4 @@
-name: CI
+name: Backend CI
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: backend-ci-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -14,8 +14,11 @@ permissions:
 
 jobs:
   test:
-    name: Go test
+    name: Backend test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend-go
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,7 +26,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version-file: backend-go/go.mod
           cache: true
 
       - name: Go version
@@ -50,8 +53,11 @@ jobs:
         run: go mod tidy -diff
 
   build:
-    name: Go build
+    name: Backend build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend-go
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,7 +65,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version-file: backend-go/go.mod
           cache: true
 
       - name: Build
