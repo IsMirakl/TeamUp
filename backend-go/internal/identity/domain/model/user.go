@@ -25,9 +25,9 @@ type User struct {
 }
 
 type Account struct {
-	UserID string
-	PasswordHash  string
-	Provider string
+	UserID       string
+	PasswordHash string
+	Provider     string
 }
 
 type Role string

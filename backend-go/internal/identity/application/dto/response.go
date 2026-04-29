@@ -12,16 +12,15 @@ type ResponseUserDTO struct {
 }
 
 type LoginResponse struct {
-	SessionId  string `json:"session_id"`
-	AccessToken string    `json:"accessToken"`
-	RefreshToken string   `json:"refresh_token"`
+	SessionId    string    `json:"session_id"`
+	AccessToken  string    `json:"accessToken"`
+	RefreshToken string    `json:"refresh_token"`
 	IsBlocked    bool      `json:"is_blocked"`
 	ExpiresAt    time.Time `json:"expires_at"`
 }
 
-
 type RegisterResponse struct {
 	User         *ResponseUserDTO `json:"user"`
-	AccessToken  string            `json:"access_token"`
-	RefreshToken string            `json:"refresh_token"`
+	AccessToken  string           `json:"access_token"`
+	RefreshToken string           `json:"refresh_token"`
 }
